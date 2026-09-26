@@ -1,53 +1,66 @@
 package com.example.motoprojetofinal.services;
 
-import com.example.motoprojetofinal.entities.Cliente;
-import com.example.motoprojetofinal.entities.PasswordResetToken;
 import com.example.motoprojetofinal.repository.ClienteRepository;
-import com.example.motoprojetofinal.repository.PasswordResetTokenRepository;
+import com.example.motoprojetofinal.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
 public class PasswordResetService {
 
     private final ClienteRepository clienteRepository;
-    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
-    public String gerarTokenRecuperacao(String email){
-        var cliente = clienteRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    private final Map<String, TokenInfo> tokens = new ConcurrentHashMap<>();
+    private final Map<String, Integer> tentativas = new ConcurrentHashMap<>();
 
-        String token = UUID.randomUUID().toString();
-
-        PasswordResetToken resetToken = new PasswordResetToken();
-        resetToken.setToken(token);
-        resetToken.setCliente(cliente);
-        resetToken.setExpiracao(LocalDateTime.now().plusMinutes(15));
-
-        passwordResetTokenRepository.save(resetToken);
-        return token;
+    // Nome que seu AuthController chama
+    public void forgotPassword(String email) {
+        gerarTokenRecuperacao(email);
+    }
+    public void resetPassword(String token, String novaSenha) {
+        recuperarSenha(token, novaSenha);
     }
 
-    public PasswordResetToken validarToken(String token) {
-        var tokenEncontrado = passwordResetTokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Token inválido"));
+    // Nome que seu ClienteController chama - mantém os 2
+    public void gerarTokenRecuperacao(String email) {
+        String emailLimpo = email.toLowerCase().trim();
+        boolean existe = clienteRepository.findByEmail(emailLimpo).isPresent() ||
+                usuarioRepository.findByEmail(emailLimpo).isPresent();
+        if (!existe) return;
 
-        if (LocalDateTime.now().isAfter(tokenEncontrado.getExpiracao())) {
-            throw new RuntimeException("Token expirado");
-        }
-        return tokenEncontrado;
+        int qtd = tentativas.getOrDefault(emailLimpo, 0);
+        if (qtd >= 3) throw new RuntimeException("Limite de 3 solicitacoes por dia");
+        tentativas.put(emailLimpo, qtd + 1);
+
+        String token = UUID.randomUUID().toString();
+        tokens.put(token, new TokenInfo(emailLimpo, LocalDateTime.now().plusMinutes(30)));
+        emailService.enviarLinkReset(emailLimpo, token);
     }
 
     public void recuperarSenha(String token, String novaSenha) {
-        PasswordResetToken resetToken = validarToken(token);
-        Cliente cliente = resetToken.getCliente();
-        cliente.setSenha(passwordEncoder.encode(novaSenha));
-        clienteRepository.save(cliente);
-        passwordResetTokenRepository.delete(resetToken);
+        TokenInfo info = tokens.get(token);
+        if (info == null || info.expiracao.isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Token invalido ou expirado");
+        }
+        clienteRepository.findByEmail(info.email).ifPresent(c -> {
+            c.setSenha(passwordEncoder.encode(novaSenha));
+            clienteRepository.save(c);
+        });
+        usuarioRepository.findByEmail(info.email).ifPresent(u -> {
+            u.setSenha(passwordEncoder.encode(novaSenha));
+            usuarioRepository.save(u);
+        });
+        tokens.remove(token);
     }
+
+    private record TokenInfo(String email, LocalDateTime expiracao) {}
 }

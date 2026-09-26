@@ -2,93 +2,108 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getTodosProdutosAdmin } from "../../lib/api"; // 2. Função que busca tudo do banco - até inativo
+import { getTodosProdutosAdmin } from "../../lib/api";
 import { supabase } from "../../lib/supabaseClient";
 
-// 3. 👇 COLOCA SEU EMAIL DE ADMIN AQUI - IGUAL AO DO /home - proteção simples por email
 const EMAIL_ADMIN = "admin@palworld.com";
 
 export default function AdminPage() {
   const router = useRouter();
-  const [produtos, setProdutos] = useState<any[]>([]); // 4. 413 Pals já no banco
-  const [itensPublic, setItensPublic] = useState<any[]>([]); // 5. Novos arquivos da pasta /public
+  const [produtos, setProdutos] = useState<any[]>([]);
+  const [itensPublic, setItensPublic] = useState<any[]>([]);
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState("todos");
-  const [modalItem, setModalItem] = useState<any>(null); // 6. Item que abriu no modal pra editar/listar
+  const [modalItem, setModalItem] = useState<any>(null);
   const [preco, setPreco] = useState("99.90");
   const [qtd, setQtd] = useState("10");
-  const [modoEdicao, setModoEdicao] = useState(false); // 7. true = editando um do banco, false = liberando um da public
-  const [loadingAuth, setLoadingAuth] = useState(true); // 8. Enquanto verifica se é admin
+  const [modoEdicao, setModoEdicao] = useState(false);
+  const [loadingAuth, setLoadingAuth] = useState(true);
 
   useEffect(() => {
-    const verificarAdmin = async () => { // 9. Proteção da rota /admin
-      const { data: { user } } = await supabase.auth.getUser(); // 10. Quem tá logado?
-      if (!user || user.email!== EMAIL_ADMIN) { // 11. Se não logou ou não é o email admin
-        alert("Acesso negado! Só admin entra aqui."); // 12. Bloqueia
-        router.push("/home"); // 13. Manda pra home
+    const verificarAdmin = async () => {
+      // 1. TENTA PEGAR DO JAVA (seu login principal)
+      const clienteRaw = localStorage.getItem("cliente");
+      const cliente = clienteRaw? JSON.parse(clienteRaw) : null;
+
+      // 2. TENTA PEGAR DO SUPABASE
+      const { data: { user } } = await supabase.auth.getUser();
+
+      console.log("Cliente Java:", cliente);
+      console.log("User Supabase:", user);
+
+      const isAdmin =
+        cliente?.role === "ADMIN" ||
+        cliente?.role === "ROLE_ADMIN" ||
+        cliente?.email === EMAIL_ADMIN ||
+        user?.email === EMAIL_ADMIN;
+
+      if (!isAdmin) {
+        alert("Acesso negado! Faça login com admin@palworld.com / admin123");
+        router.push("/"); // manda pra página inicial onde tem o modal de login
         return;
       }
-      setLoadingAuth(false); // 14. Passou, pode mostrar página
-      carregar(); // 15. Carrega dados
+      setLoadingAuth(false);
+      carregar();
     };
     verificarAdmin();
   }, []);
 
   const carregar = async () => {
-    const p = await getTodosProdutosAdmin(); // 16. Busca todos do banco via sua lib/api - sem filtro ativo_na_loja
+    const p = await getTodosProdutosAdmin();
     setProdutos(p as any);
-    const res = await fetch("/api/itens"); // 17. Busca arquivos da public
+    const res = await fetch("/api/itens");
     const data = await res.json();
-    setItensPublic(Array.isArray(data)? data : []); // 18. Garante array
+    setItensPublic(Array.isArray(data)? data : []);
   };
 
-  const confirmar = async () => { // 19. Botão Salvar/Listar do modal
+  const confirmar = async () => {
     if(!modalItem) return;
-    if(modoEdicao){ // 20. Editando produto já existente
-      await supabase.from("produtos").update({ preco: parseFloat(preco), estoque: parseInt(qtd) }).eq("id", modalItem.id); // 21. UPDATE produtos SET preco, estoque WHERE id
-    } else { // 22. Novo vindo da public
-      await supabase.from("produtos").insert({ nome: modalItem.nome, imagem: modalItem.arquivo, preco: parseFloat(preco), estoque: parseInt(qtd), ativo_na_loja: true, categoria: modalItem.categoria }); // 23. INSERT com ativo_na_loja true já libera pro catálogo
+    if(modoEdicao){
+      await supabase.from("produtos").update({ preco: parseFloat(preco), estoque: parseInt(qtd) }).eq("id", modalItem.id);
+    } else {
+      await supabase.from("produtos").insert({ nome: modalItem.nome, imagem: modalItem.arquivo, preco: parseFloat(preco), estoque: parseInt(qtd), ativo_na_loja: true, categoria: modalItem.categoria });
     }
-    setModalItem(null); // 24. Fecha modal
-    carregar(); // 25. Recarrega listas
+    setModalItem(null);
+    carregar();
   };
 
-  const filtrar = (lista:any[]) => lista.filter((i:any)=>{ // 26. Função filtro por nome e categoria
+  const filtrar = (lista:any[]) => lista.filter((i:any)=>{
     const nome = (i.nome||"").toLowerCase();
     const cat = (i.categoria||"pal").toLowerCase();
     return nome.includes(busca.toLowerCase()) && (filtro==="todos" || cat===filtro);
   });
 
-  if (loadingAuth) { // 27. Tela enquanto verifica admin
-    return <div className="min-h-screen bg-[#0B1325] flex items-center justify-center text-white">Verificando permissão...</div>;
+  if (loadingAuth) {
+    return <div className="min-h-screen bg-[#0B1325] flex items-center justify-center text-white">Verificando permissão de ADM...</div>;
   }
 
-  const listaPublic = filtrar(itensPublic.map((x:any)=> ({...x, id: x.arquivo}) )); // 28. Filtra public
-  const listaBanco = filtrar(produtos); // 29. Filtra banco
-  const jaExiste = (arq:string) => produtos.some((p:any)=> p.imagem===arq); // 30. Evita duplicar - checa se imagem já tá no banco
+  const listaPublic = filtrar(itensPublic.map((x:any)=> ({...x, id: x.arquivo}) ));
+  const listaBanco = filtrar(produtos);
+  const jaExiste = (arq:string) => produtos.some((p:any)=> p.imagem===arq);
 
   return (
     <div className="min-h-screen bg-[#0B1325] p-6 text-white">
       <div className="flex justify-between items-center">
         <p className="font-bold">Banco: {produtos.length} | Public: {itensPublic.length}</p>
-        <button onClick={async ()=>{ await supabase.auth.signOut(); router.push("/home"); }} className="bg-white/10 px-4 py-1 rounded-full text-xs">Sair</button>
+        <button onClick={async ()=>{ localStorage.clear(); await supabase.auth.signOut(); router.push("/"); }} className="bg-white/10 px-4 py-1 rounded-full text-xs">Sair</button>
       </div>
 
       <input value={busca} onChange={e=>setBusca(e.target.value)} placeholder="Buscar..." className="w-full p-3 mt-4 bg-[#162342] rounded-xl border border-white/10 outline-none" />
       <div className="flex gap-2 mt-4 flex-wrap">
         {['todos','pal','arma','armadura','escudo','municao','esfera'].map(c=>(
-          <button key={c} onClick={()=>setFiltro(c)} className={`px-3 py-1 rounded-full text-xs border ${filtro===c?'bg-[#E2C9A1] text-black':'bg-[#162342] border-white/10'}`}>{c.toUpperCase()} ({c==='todos'? listaBanco.length+listaPublic.length : filtrar([...produtos,...itensPublic]).length})</button>
+          <button key={c} onClick={()=>setFiltro(c)} className={`px-3 py-1 rounded-full text-xs border ${filtro===c?'bg-[#E2C9A1] text-black':'bg-[#162342] border-white/10'}`}>{c.toUpperCase()}</button>
         ))}
       </div>
 
-      <h2 className="mt-8 font-bold text-[#E2C9A1]">BANCO - {listaBanco.length} itens (seus 413 Pals estão aqui)</h2>
+      <h2 className="mt-8 font-bold text-[#E2C9A1]">BANCO - {listaBanco.length} itens</h2>
       <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mt-3">
         {listaBanco.map((it:any)=>(
           <div key={it.id} className="bg-[#162342] p-2 rounded-xl border border-white/10">
             <img src={it.imagem} className="h-20 w-full object-contain" />
             <p className="text-[10px] truncate">{it.nome}</p>
             <p className="text-[9px] text-zinc-400">R$ {it.preco} | Qtd {it.estoque}</p>
-            <button onClick={()=>{ setModalItem(it); setPreco(String(it.preco)); setQtd(String(it.estoque)); setModoEdicao(true); }} className="w-full mt-1 bg-white/10 py-1 rounded text-[10px]">Editar Valor/Qtd</button>
+            {/* BOTÃO CORRIGIDO - IGUAL AO DA PRINT */}
+            <button onClick={()=>{ setModalItem(it); setPreco(String(it.preco)); setQtd(String(it.estoque)); setModoEdicao(true); }} className="w-full mt-1 bg-[#E2C9A1] text-black py-1.5 rounded-md text-[10px] font-bold hover:bg-white transition">Editar Valor/Qtd</button>
           </div>
         ))}
       </div>
@@ -99,7 +114,7 @@ export default function AdminPage() {
           <div key={it.arquivo} className="bg-[#162342] p-2 rounded-xl border border-white/10">
             <img src={it.arquivo} className="h-20 w-full object-contain" />
             <p className="text-[10px] truncate">{it.nome}</p>
-            {jaExiste(it.arquivo)? <span className="text-[10px] text-green-400">✅ NA LOJA</span> : <button onClick={()=>{ setModalItem(it); setPreco("99.90"); setQtd("10"); setModoEdicao(false); }} className="w-full mt-1 bg-[#E2C9A1] text-black py-1 rounded text-[10px] font-bold">Listar com Valor/Qtd</button>}
+            {jaExiste(it.arquivo)? <span className="text-[10px] text-green-400">✅ NA LOJA</span> : <button onClick={()=>{ setModalItem(it); setPreco("99.90"); setQtd("10"); setModoEdicao(false); }} className="w-full mt-1 bg-[#E2C9A1] text-black py-1.5 rounded-md text-[10px] font-bold hover:bg-white transition">Listar com Valor/Qtd</button>}
           </div>
         ))}
       </div>
