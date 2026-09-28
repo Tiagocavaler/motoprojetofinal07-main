@@ -1,6 +1,6 @@
 import fs from 'fs' // 1. Ler pastas
 import path from 'path' // 2. Caminho
-import { supabase } from '../../lib/supabase' // 3. Client supabase - tabela produtos
+import { supabase } from "@/lib/supabaseClient" // 3. Client supabase - tabela produtos
 
 export async function GET() { // 4. GET /api/importar-produtos - roda 1x pra migrar public -> banco
   const mapa = [ // 5. De/para pasta -> categoria

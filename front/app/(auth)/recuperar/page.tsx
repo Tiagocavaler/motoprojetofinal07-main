@@ -1,8 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function AtualizarSenha(){
+export const dynamic = 'force-dynamic';
+
+function ConteudoAtualizarSenha(){
   const [novaSenha, setNovaSenha] = useState("");
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState("");
@@ -10,12 +12,10 @@ export default function AtualizarSenha(){
   const searchParams = useSearchParams();
 
   useEffect(()=> {
-    // Pega token de?token=... ou?access_token=... ou do #hash do Supabase
     const tokenUrl = searchParams.get("token") || searchParams.get("access_token");
     if(tokenUrl){
       setToken(tokenUrl);
     } else {
-      // Fallback: tenta ler do hash #access_token=... (link antigo do Supabase)
       const hash = window.location.hash;
       if(hash.includes("access_token")){
         const params = new URLSearchParams(hash.replace("#","?"));
@@ -60,5 +60,13 @@ export default function AtualizarSenha(){
         <button disabled={loading ||!token} className="w-full bg-[#E2C9A1] text-black py-3 rounded-lg font-bold disabled:opacity-50">{loading?"Salvando...":"Salvar nova senha"}</button>
       </form>
     </div>
+  )
+}
+
+export default function AtualizarSenha(){
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0B1325] text-white">Carregando...</div>}>
+      <ConteudoAtualizarSenha />
+    </Suspense>
   )
 }
