@@ -1,0 +1,201 @@
+/* 1. CONTAINER PRINCIPAL E FUNDO - ocupa tela toda */
+.page {
+  min-height: 100vh; /* 2. 100% da altura da tela */
+  background-color: #030811; /* 3. Fundo azul bem escuro */
+  color: #ffffff; /* 4. Texto padrão branco */
+  display: flex; /* 5. Flex pra centralizar tudo no meio */
+  align-items: center; /* 6. Centraliza vertical */
+  justify-content: center; /* 7. Centraliza horizontal */
+  padding: 24px; /* 8. Espaço nas bordas no mobile */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; /* 9. Fonte do sistema */
+}
+
+.main-container {
+  display: flex; /* 10. Coloca magic-card + right-panel lado a lado */
+  align-items: center;
+  justify-content: center;
+  gap: 40px; /* 11. Espaço entre a ilustração e o form */
+  width: 100%;
+  max-width: 900px; /* 12. Não deixa esticar demais em telão */
+}
+
+/* 13. PAINEL ESQUERDO COM A ILUSTRAÇÃO */
+.magic-card {
+  width: 380px; /* 14. Largura fixa do card da esquerda */
+  background: #091526;
+  border: 1px solid #142843;
+  border-radius: 24px; /* 15. Borda bem arredondada */
+  padding: 32px 24px 20px;
+  display: flex;
+  flex-direction: column; /* 16. Um embaixo do outro: arco + botão */
+  align-items: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6); /* 17. Sombra pra dar profundidade */
+}
+
+/* 18. MOLDURA DE ARCO BRANCA - onde vai o coelho */
+.arch-frame {
+  width: 100%;
+  height: 380px;
+  background: #ffffff; /* 19. Fundo branco do arco */
+  border-radius: 180px 180px 32px 32px; /* 20. Faz o formato de arco: topo redondo, baixo quadrado */
+  position: relative;
+  overflow: hidden; /* 21. Corta o que passar do arco */
+  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.character-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end; /* 22. Gruda personagem na base do arco */
+  justify-content: center;
+}
+
+.bunny-video {
+  width: 100%;
+  height: 95%; /* 23. Vídeo/gif do coelho - 95% pra não encostar no topo */
+  object-fit: contain; /* 24. Mantém proporção sem esticar */
+}
+
+/* 25. BOTÃO INFERIOR - verde neon */
+.badge-btn {
+  margin-top: 18px;
+  background: #062319; /* 26. Fundo verde escuro */
+  border: 1px solid #39df82; /* 27. Borda verde neon */
+  color: #39df82;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 10px 22px;
+  border-radius: 20px; /* 28. Formato pílula */
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 15px rgba(57, 223, 130, 0.25); /* 29. Brilho neon */
+  transition: transform 0.2s, box-shadow 0.2s; /* 30. Animação suave no hover */
+}
+
+.badge-btn:hover {
+  transform: scale(1.03); /* 31. Cresce um pouco no hover */
+  box-shadow: 0 0 20px rgba(57, 223, 130, 0.4);
+}
+
+/* 32. PAINEL DIREITO - onde fica login/bloqueado */
+.right-panel {
+  flex: 1; /* 33. Ocupa o resto do espaço */
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+}
+
+/* 34. CARD BLOQUEADO - mostrado quando coelho trava login */
+.locked-card {
+  width: 100%;
+  background: #0c1c33;
+  border: 1px solid #1e3b66;
+  border-radius: 16px;
+  padding: 40px 24px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.locked-card h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #ffffff;
+}
+
+.locked-message {
+  color: #8da2c0; /* 35. Texto cinza-azulado de aviso */
+  font-size: 14px;
+}
+
+/* 36. CARD DO FORMULÁRIO DE LOGIN */
+.login-card {
+  width: 100%;
+  background: #0c1c33;
+  border: 1px solid #1e3b66;
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.login-card h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #ffffff;
+}
+
+.subtitle {
+  color: #8da2c0; /* 37. Subtítulo "Acesse sua conta" */
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.login-card label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #cad8e8;
+  margin-bottom: 6px;
+}
+
+.login-card input {
+  width: 100%;
+  background: #06101e; /* 38. Input bem escuro */
+  border: 1px solid #182e4d;
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: #ffffff;
+  font-size: 14px;
+  margin-bottom: 16px;
+  outline: none; /* 39. Tira borda azul padrão */
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.login-card input:focus {
+  border-color: #3b82f6; /* 40. Quando clica, borda fica azul */
+}
+
+.enter-btn {
+  width: 100%;
+  background: #22c55e; /* 41. Botão Entrar verde */
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background-color 0.2s;
+}
+
+.enter-btn:hover {
+  background: #16a34a; /* 42. Verde mais escuro no hover */
+}
+
+.enter-btn:disabled {
+  opacity: 0.6; /* 43. Quando loading=true, fica apagado */
+  cursor: not-allowed;
+}
+
+.register, .forgot {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 13px;
+  color: #8da2c0;
+}
+
+.register a, .forgot {
+  color: #60a5fa; /* 44. Links azul claro */
+  text-decoration: none;
+}
+
+.register a:hover, .forgot:hover {
+  text-decoration: underline;
+}
