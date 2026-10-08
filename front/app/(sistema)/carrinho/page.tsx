@@ -1,114 +1,156 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import Link from "next/link";
 
-import { useState, useEffect } from "react"; // 2. Memória e carregar ao abrir
-import { createClient } from "@supabase/supabase-js"; // 3. Cria cliente Supabase direto aqui (não usa lib)
-import Link from "next/link"; // 4. Link leve
-import { useRouter } from "next/navigation"; // 5. router.push()
+export default function PedidoPage() {
+  const [carrinho, setCarrinho] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [finalizando, setFinalizando] = useState(false);
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!, // 6. URL do teu projeto Supabase
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! // 7. Anon key pública
-);
-
-export default function CarrinhoPage() { // 8. Rota /carrinho
-  const [carrinho, setCarrinho] = useState<any[]>([]); // 9. Guarda linhas da tabela carrinho + produto joinado
-  const [loading, setLoading] = useState(true); // 10. Loading inicial
-  const router = useRouter(); // 11. Navegação
-
-  // 12. CARREGA CARRINHO: Busca do Supabase com join na tabela produtos
   const carregar = async () => {
-    setLoading(true); // 13. Liga loading
-    const { data } = await supabase.from("carrinho").select("*, produtos(*)").order("created_at", { ascending: false }); // 14. SELECT com join - pega carrinho + dados do produto junto
-    if (data) setCarrinho(data); // 15. Guarda no estado
-    setLoading(false); // 16. Desliga loading
-  };
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("carrinho")
+      .select("*, produtos(*)")
+      .order("created_at", { ascending: false });
 
-  useEffect(() => { carregar(); }, []); // 17. Carrega 1x quando abre página
-
-  // 18. NAVEGABILIDADE + LÓGICA: Aumentar quantidade do item
-  const aumentar = async (item: any) => {
-    await supabase.from("carrinho").update({ quantidade: item.quantidade + 1 }).eq("id", item.id); // 19. UPDATE quantidade +1 na linha do carrinho
-    carregar(); // 20. Recarrega pra atualizar total
-  };
-
-  // 21. NAVEGABILIDADE + LÓGICA: Diminuir ou remover se chegar a 0
-  const diminuir = async (item: any) => {
-    if (item.quantidade <= 1) { // 22. Se qtd for 1 e clicar em menos, remove o item do carrinho
-      // 23. Se qtd for 1 e clicar em menos, remove o item do carrinho
-      await supabase.from("carrinho").delete().eq("id", item.id); // 24. DELETE da linha
-    } else {
-      await supabase.from("carrinho").update({ quantidade: item.quantidade - 1 }).eq("id", item.id); // 25. Se >1, só diminui 1
+    if (error) {
+      console.error(error);
+      setCarrinho([]);
+      setLoading(false);
+      return;
     }
-    carregar(); // 26. Atualiza lista
+    const validos = (data || []).filter((i: any) => i.produtos !== null);
+    setCarrinho(validos);
+    setLoading(false);
   };
 
-  // 27. LÓGICA: Remover item direto
-  const remover = async (id: string) => {
-    await supabase.from("carrinho").delete().eq("id", id); // 28. DELETE direto pelo botão Remover
+  useEffect(() => { carregar(); }, []);
+
+  // 1. NOVO: Aumenta e DIMINUI estoque real no produtos
+  const aumentar = async (item: any) => {
+    const estoqueAtual = item.produtos?.estoque ?? 0;
+    if (estoqueAtual <= 0) {
+      return alert(`Sem estoque! ${item.produtos.nome} acabou`);
+    }
+
+    await supabase.from("carrinho").update({ quantidade: item.quantidade + 1 }).eq("id", item.id);
+    await supabase.from("produtos").update({ estoque: estoqueAtual - 1 }).eq("id", item.produto_id);
     carregar();
   };
 
-  // 29. CÁLCULO: Soma total do carrinho
-  const total = carrinho.reduce((acc, i) => acc + (i.produtos.preco * i.quantidade), 0); // 30. Soma preco*qtd de cada item
+  const diminuir = async (item: any) => {
+    if (item.quantidade <= 1) {
+      return remover(item);
+    }
+    await supabase.from("carrinho").update({ quantidade: item.quantidade - 1 }).eq("id", item.id);
+    // 2. NOVO: Devolve 1 pro estoque
+    await supabase.from("produtos").update({ estoque: (item.produtos?.estoque ?? 0) + 1 }).eq("id", item.produto_id);
+    carregar();
+  };
 
-  if (loading) return <div className="p-8 text-white">Carregando carrinho...</div>; // 31. Tela de loading
+  const remover = async (item: any) => {
+    if (!confirm(`Remover ${item.produtos?.nome}?`)) return;
 
-  // 32. NAVEGABILIDADE: Se carrinho vazio, não joga pro catálogo automático, mostra opção de ir
-  if (carrinho.length === 0) { // 33. Caso carrinho vazio
-    return (
-      <div className="p-8 text-white text-center max-w-2xl mx-auto">
-        <h1 className="text-2xl font-black text-[#E2C9A1]">Carrinho Vazio</h1>
-        <p className="mt-2 text-white/60">Adicione algum Pal no catálogo</p>
-        <Link href="/catalogo" className="inline-block mt-6 bg-[#E2C9A1] text-black px-8 py-3 rounded-xl font-bold">Ir para Catálogo</Link>
-      </div>
-    );
-  }
+    // 3. NOVO: Devolve tudo que estava no carrinho pro estoque
+    const devolucao = item.quantidade;
+    const estoqueAtual = item.produtos?.estoque ?? 0;
+    
+    await supabase.from("produtos").update({ estoque: estoqueAtual + devolucao }).eq("id", item.produto_id);
+    await supabase.from("carrinho").delete().eq("id", item.id);
+    carregar();
+  };
+
+  // 4. NOVO: Finaliza pedido - NÃO devolve estoque, cria pedido e limpa carrinho
+  const finalizarPedido = async () => {
+    if (finalizando) return;
+    setFinalizando(true);
+    try {
+      const cliente_id = localStorage.getItem("cliente_id");
+      const totalFinal = carrinho.reduce((acc, i) => acc + ((i.produtos?.preco || 0) * i.quantidade), 0);
+
+      // Cria o pedido
+      const { data: pedido, error } = await supabase.from("pedidos").insert([{
+        cliente_id: cliente_id || null,
+        total: totalFinal,
+        status: "pago"
+      }]).select().single();
+
+      if (error) throw error;
+
+      // Cria itens do pedido (se você tem tabela pedidos_itens)
+      if (pedido) {
+        const itens = carrinho.map((i: any) => ({
+          pedido_id: pedido.id,
+          produto_id: i.produto_id,
+          quantidade: i.quantidade,
+          preco: i.produtos.preco
+        }));
+        await supabase.from("pedidos_itens").insert(itens);
+      }
+
+      // Limpa carrinho sem devolver estoque (venda feita)
+      await supabase.from("carrinho").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      
+      alert("Pedido finalizado! Estoque já baixado");
+      setCarrinho([]);
+    } catch (e: any) {
+      alert("Erro ao finalizar: " + e.message);
+    } finally {
+      setFinalizando(false);
+    }
+  };
+
+  const total = carrinho.reduce((acc, i) => acc + ((i.produtos?.preco || 0) * i.quantidade), 0);
+
+  if (loading) return <div className="min-h-screen bg-[#0B1325] text-white flex items-center justify-center">Carregando...</div>;
 
   return (
-    // 34. ESTRUTURA: Container principal já dentro do SistemaLayout (com Header)
-    <div className="p-4 md:p-8 text-white">
-      {/* 35. NAVEGABILIDADE: Botão voltar para o catálogo - exigência da banca */}
-      <button onClick={() => router.push('/catalogo')} className="mb-6 text-white/60 hover:text-white text-sm">
-        ← Voltar para o Catálogo
-      </button>
-
-      <h1 className="text-2xl font-black text-[#E2C9A1] mb-6">Carrinho de Compras</h1>
-
-      <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {/* 36. LISTAGEM: Itens do carrinho - ocupa 2 colunas */}
-        <div className="md:col-span-2 space-y-3">
-          {carrinho.map(item => (
-            <div key={item.id} className="bg-[#162342] p-4 rounded-xl border border-white/10 flex items-center gap-4">
-              <img src={item.produtos.imagem} className="w-20 h-20 object-contain bg-[#0B1325] rounded-lg" />
-              <div className="flex-1">
-                <p className="font-bold text-[#E2C9A1]">{item.produtos.nome}</p>
-                <p className="text-sm">R$ {item.produtos.preco} | Estoque: {item.produtos.estoque}</p>
-                <div className="flex items-center gap-3 mt-2">
-                  <button onClick={()=>diminuir(item)} className="w-8 h-8 bg-[#0B1325] rounded border border-white/10">-</button>
-                  <span className="font-bold">{item.quantidade}</span>
-                  <button onClick={()=>aumentar(item)} className="w-8 h-8 bg-[#0B1325] rounded border border-white/10">+</button>
-                  <button onClick={()=>remover(item.id)} className="ml-4 text-red-400 text-xs">Remover</button>
+    <div className="min-h-screen bg-[#0B1325] p-6 text-white">
+      <h1 className="text-2xl font-black text-[#E2C9A1]">Pedido - Total: R$ {total.toFixed(2)}</h1>
+      
+      {carrinho.length === 0 ? (
+        <div className="mt-8 text-center">
+          <p className="text-white/60">Carrinho vazio</p>
+          <Link href="/catalogo" className="mt-4 inline-block bg-[#E2C9A1] text-black px-6 py-3 rounded-xl font-bold">Ver Catálogo</Link>
+        </div>
+      ) : (
+        <div className="mt-6 grid gap-3 max-w-2xl">
+          {carrinho.map((item: any, idx: number) => {
+            const semEstoqueParaAumentar = (item.produtos?.estoque ?? 0) <= 0;
+            return (
+              <div key={idx} className="bg-[#162342] p-4 rounded-xl flex justify-between items-center">
+                <div className="flex-1">
+                  <p className="font-bold text-[#E2C9A1]">{item.produtos?.nome}</p>
+                  <p className="text-xs text-zinc-400">R$ {item.produtos?.preco} | Estoque restante: {item.produtos?.estoque}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => diminuir(item)} className="w-8 h-8 bg-white/10 rounded-lg font-bold">-</button>
+                  <span className="w-8 text-center font-bold">{item.quantidade}</span>
+                  <button 
+                    disabled={semEstoqueParaAumentar} 
+                    onClick={() => aumentar(item)} 
+                    className={`w-8 h-8 rounded-lg font-bold ${semEstoqueParaAumentar ? 'bg-white/5 text-white/20 cursor-not-allowed' : 'bg-[#E2C9A1] text-black'}`}
+                  >
+                    +
+                  </button>
+                  <button onClick={() => remover(item)} className="ml-2 text-red-400 text-xs">X</button>
                 </div>
               </div>
-              <p className="font-black">R$ {(item.produtos.preco * item.quantidade).toFixed(2)}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* 37. RESUMO E NAVEGABILIDADE: Vai para o pagamento */}
-        <div className="bg-[#162342] p-6 rounded-2xl border border-white/10 h-fit">
-          <h2 className="font-bold mb-4">Resumo</h2>
-          <div className="flex justify-between mb-2 text-sm"><span>Subtotal</span><span>R$ {total.toFixed(2)}</span></div>
-          <div className="flex justify-between font-black text-[#E2C9A1] text-lg border-t border-white/10 pt-4 mt-4"><span>Total</span><span>R$ {total.toFixed(2)}</span></div>
-          
-          {/* 38. NAVEGABILIDADE CRÍTICA: Cliente -> Pagamento. Se sua pasta chama /pedido, troque aqui */}
-          <button onClick={()=>router.push("/pedido")} className="w-full mt-6 bg-[#E2C9A1] text-black py-4 rounded-xl font-black hover:bg-[#d6b88a]">
-            IR PARA PAGAMENTO
+            )
+          })}
+          <button 
+            onClick={finalizarPedido}
+            disabled={finalizando}
+            className="w-full mt-6 bg-[#E2C9A1] text-black py-4 rounded-xl font-black text-center disabled:opacity-50"
+          >
+            {finalizando ? "Finalizando..." : `FINALIZAR PEDIDO - R$ ${total.toFixed(2)}`}
           </button>
-          <Link href="/catalogo" className="block text-center mt-3 text-xs text-white/60 hover:text-white">← Continuar comprando</Link>
+          <Link href="/catalogo" className="w-full bg-white/10 py-3 rounded-xl font-bold text-center block">Continuar comprando</Link>
         </div>
-      </div>
+      )}
     </div>
   );
 }
