@@ -1,16 +1,16 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react"; // 2. Lib QR
 import { supabase } from "@/lib/supabaseClient"; // 3. Pega config da loja
 
-function format(tamanho: number, valor: string) { // 4. Não usado - sobrou
+function format(tamanho: number, valor: string) { // 4. NÃ£o usado - sobrou
   return `${String(tamanho).padStart(2, '0')}${valor}`;
 }
-function formatLen(valor: string) { // 5. Formato EMV PIX - len 2 dígitos + valor - ex: 0014 + BR.GOV.BCB.PIX
+function formatLen(valor: string) { // 5. Formato EMV PIX - len 2 dÃ­gitos + valor - ex: 0014 + BR.GOV.BCB.PIX
   return `${String(valor.length).padStart(2, '0')}${valor}`;
 }
-function crc16(payload: string) { // 6. CRC16-CCITT 0x1021 - obrigatório no final do PIX pra validar
+function crc16(payload: string) { // 6. CRC16-CCITT 0x1021 - obrigatÃ³rio no final do PIX pra validar
   let crc = 0xFFFF;
   for (let i = 0; i < payload.length; i++) {
     crc ^= payload.charCodeAt(i) << 8;
@@ -33,13 +33,13 @@ export default function PixCheckout({ valor, pedidoId }: { valor: number, pedido
   }, []);
 
   if (loading) return <div className="p-6 bg-[#162342] rounded-2xl text-zinc-400 text-sm">Carregando PIX...</div>;
-  if (!config?.pix_chave) return <div className="p-6 bg-[#162342] rounded-2xl text-red-400 text-sm">PIX não configurado pelo administrador. Vá em /admin/config</div>; // 10. Sem chave não gera
+  if (!config?.pix_chave) return <div className="p-6 bg-[#162342] rounded-2xl text-red-400 text-sm">PIX nÃ£o configurado pelo administrador. VÃ¡ em /admin/config</div>; // 10. Sem chave nÃ£o gera
 
-  const chave = config.pix_chave.trim(); // 11. cpf/cnpj/email/aleatória
-  const nome = (config.pix_nome || "PAL STORE").substring(0, 25).toUpperCase(); // 12. Regra BACEN - max 25 chars maiúsculo
+  const chave = config.pix_chave.trim(); // 11. cpf/cnpj/email/aleatÃ³ria
+  const nome = (config.pix_nome || "PAL STORE").substring(0, 25).toUpperCase(); // 12. Regra BACEN - max 25 chars maiÃºsculo
   const cidade = (config.pix_cidade || "CRICIUMA").substring(0, 15).toUpperCase(); // 13. Max 15 chars
   const valorStr = valor.toFixed(2); // 14. 100 -> "100.00"
-  const txid = pedidoId.replace(/[^A-Za-z0-9]/g, '').substring(0, 25) || "***"; // 15. id sem traço - max 25
+  const txid = pedidoId.replace(/[^A-Za-z0-9]/g, '').substring(0, 25) || "***"; // 15. id sem traÃ§o - max 25
 
   // 16. Monta campo 26 - merchant account - GUI + chave
   const campo26Interno = `0014BR.GOV.BCB.PIX01${formatLen(chave)}`; // 17. 00=GUI 01=chave
@@ -68,11 +68,11 @@ export default function PixCheckout({ valor, pedidoId }: { valor: number, pedido
       <button
         onClick={() => {
           navigator.clipboard.writeText(payload); // 27. Copia
-          alert("Código PIX copiado!");
+          alert("CÃ³digo PIX copiado!");
         }}
         className="w-full mt-4 bg-[#E2C9A1] text-black py-3 rounded-xl font-black text-sm"
       >
-        COPIAR CÓDIGO PIX
+        COPIAR CÃ“DIGO PIX
       </button>
       <p className="text-[9px] text-zinc-600 mt-2">Pedido: {pedidoId}</p>
     </div>

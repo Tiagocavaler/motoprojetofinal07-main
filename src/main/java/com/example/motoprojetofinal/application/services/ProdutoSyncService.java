@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,7 @@ public class ProdutoSyncService {
     public void sincronizarProdutos() {
         log.info("[SYNC] Iniciando atualização automática do catálogo...");
         try {
+            // TROQUE AQUI PELO SEU REPO REAL ANTES DA APRESENTAÇÃO
             String endpoint = "/seu-usuario/seu-repo/main/produtos.json";
 
             List<Map<String, Object>> itensApi = restClient.get()
@@ -38,29 +40,52 @@ public class ProdutoSyncService {
                 return;
             }
 
+            int novos = 0;
+            int ignorados = 0;
+
             for (Map<String, Object> item : itensApi) {
-                // CORRIGIDO: Pega como Number pra funcionar tanto com Integer quanto Long
                 Number idNumber = (Number) item.get("id");
                 Long idApi = idNumber.longValue();
-
                 String nomeApi = (String) item.get("name");
+
+                if (produtoRepository.existsByNomeIgnoreCase(nomeApi)) {
+                    ignorados++;
+                    continue;
+                }
+                if (produtoRepository.existsById(idApi)) {
+                    ignorados++;
+                    continue;
+                }
 
                 List<String> types = (List<String>) item.get("types");
                 String tipoApi = types != null ? String.join(", ", types) : "Sem tipo";
 
                 Produto produto = new Produto();
-                produto.setId(idApi); // AGORA É LONG CORRETO
+                produto.setId(idApi);
                 produto.setNome(nomeApi);
                 produto.setTipo(tipoApi);
-                produto.setPreco(new BigDecimal("100.00")); // Preço padrão, já que sua API não manda preço
+                produto.setPreco(new BigDecimal("100.00"));
                 produto.setEstoque(10);
+                produto.setAtivoNaLoja(true);
+                produto.setSincronizado(true);
+                produto.setOrigem("REMOTE");
+                produto.setUpdatedAt(LocalDateTime.now());
+
+                if (item.containsKey("imagem_url")) {
+                    produto.setImagemUrl((String) item.get("imagem_url"));
+                }
 
                 produtoRepository.save(produto);
+                novos++;
             }
-            log.info("[SYNC] Sucesso! {} produtos sincronizados.", itensApi.size());
+            log.info("[SYNC] Sucesso! {} novos, {} ignorados (repetidos).", novos, ignorados);
 
         } catch (Exception e) {
-            log.error("[SYNC ERRO] Falha ao sincronizar: {}", e.getMessage(), e);
+            log.error("[SYNC ERRO] Falha ao sincronizar: {} - Continuando offline no H2", e.getMessage());
         }
+    }
+
+    public void sincronizar() {
+        sincronizarProdutos();
     }
 }

@@ -1,27 +1,27 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, FormEvent } from "react"; // 1. Hooks do React - useState guarda dado, useEffect roda ao abrir, FormEvent tipa o submit
 import { ClienteResponse, EnumStatusCliente } from "./types/schema"; // 2. Tipos - response pra lista, enum pro status
 
 export default function ClientePage(){ // 3. Tela /cliente - LISTA E CADASTRA
-  // 4. Lista de clientes que vem do banco - começa vazio []
+  // 4. Lista de clientes que vem do banco - comeÃ§a vazio []
   const [clientes, setClientes] = useState<ClienteResponse[]>([]);
   // 5. Filtro de status - null = todos, ATIVO, ESPORADICO, INATIVO
   const [filtro, setFiltro] = useState<EnumStatusCliente | "TODOS">("TODOS");
   // 6. Loading da lista
   const [loadingLista, setLoadingLista] = useState(false);
   
-  // 7. Formulário controlado - guarda o que você digita - um objeto só com tudo
+  // 7. FormulÃ¡rio controlado - guarda o que vocÃª digita - um objeto sÃ³ com tudo
   const [form, setForm] = useState({ nome: "", cpf: "", email: "", senha: "", status: EnumStatusCliente.ATIVO });
 
-  // 8. Função que carrega clientes do banco - GET http://localhost:8081/usuarios?status=...
+  // 8. FunÃ§Ã£o que carrega clientes do banco - GET http://localhost:8081/usuarios?status=...
   async function carregar(){
     setLoadingLista(true); // 9. Liga loading da lista
     try{
-      // 10. Monta URL com filtro - se TODOS não manda query param
+      // 10. Monta URL com filtro - se TODOS nÃ£o manda query param
       let url = "http://localhost:8081/usuarios"; // 11. URL base do seu Java
       if(filtro !== "TODOS"){ // 12. Se selecionou um status
-        url += `?status=${filtro}`; // 13. Adiciona ?status=ATIVO etc - seu controller novo já aceita
+        url += `?status=${filtro}`; // 13. Adiciona ?status=ATIVO etc - seu controller novo jÃ¡ aceita
       }
       const res = await fetch(url); // 14. Busca do Java
       const data = await res.json(); // 15. Converte
@@ -37,7 +37,7 @@ export default function ClientePage(){ // 3. Tela /cliente - LISTA E CADASTRA
 
   // 21. Quando clica em CADASTRAR
   async function handleCreate(e: FormEvent){
-    e.preventDefault(); // 22. Não recarrega a página - comportamento padrão do form é recarregar
+    e.preventDefault(); // 22. NÃ£o recarrega a pÃ¡gina - comportamento padrÃ£o do form Ã© recarregar
     try{
       // 23. Manda pro Java salvar - POST http://localhost:8081/usuarios - seu ClienteController.criar
       const res = await fetch("http://localhost:8081/usuarios", {
@@ -45,15 +45,15 @@ export default function ClientePage(){ // 3. Tela /cliente - LISTA E CADASTRA
         headers: {"Content-Type":"application/json"}, // 25. JSON
         body: JSON.stringify({ // 26. Corpo que seu ClienteRequestDTO espera
           nome: form.nome, // 27. Nome
-          cpf: form.cpf.replace(/\D/g,""), // 28. CPF só números
+          cpf: form.cpf.replace(/\D/g,""), // 28. CPF sÃ³ nÃºmeros
           email: form.email, // 29. Email
           senha: form.senha // 30. Senha - Java criptografa com BCrypt
-          // 31. Status não precisa mandar - Java já cria como ATIVO automaticamente no seu service
+          // 31. Status nÃ£o precisa mandar - Java jÃ¡ cria como ATIVO automaticamente no seu service
         })
       });
       if(!res.ok){ // 32. Se deu erro
         const erro = await res.json(); // 33. Pega mensagem
-        throw new Error(erro.message || "Erro ao cadastrar"); // 34. Lança
+        throw new Error(erro.message || "Erro ao cadastrar"); // 34. LanÃ§a
       }
       setForm({ nome:"", cpf:"", email:"", senha:"", status: EnumStatusCliente.ATIVO }); // 35. Limpa form - volta pro inicial
       setFiltro("TODOS"); // 36. Volta filtro pra TODOS pra ver o novo
@@ -61,7 +61,7 @@ export default function ClientePage(){ // 3. Tela /cliente - LISTA E CADASTRA
     }catch(err){ alert((err as Error).message) } // 38. Se Java deu erro (CPF duplicado, etc), mostra alerta
   }
 
-  // 39. Função pra cor do badge do status - visual
+  // 39. FunÃ§Ã£o pra cor do badge do status - visual
   function corStatus(s: string){
     if(s === "ATIVO") return "bg-green-500/20 text-green-400 border-green-500/30"; // 40. Verde pra ativo
     if(s === "ESPORADICO") return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"; // 41. Amarelo pra esporadico
@@ -70,7 +70,7 @@ export default function ClientePage(){ // 3. Tela /cliente - LISTA E CADASTRA
   }
 
   return (
-    <div className="p-8 bg-[#0B1325] min-h-screen text-white"> {/* 44. Container da página */}
+    <div className="p-8 bg-[#0B1325] min-h-screen text-white"> {/* 44. Container da pÃ¡gina */}
       <h1 className="text-2xl font-black">Clientes - MotoTrack</h1> {/* 45. Titulo */}
 
       {/* 46. FILTROS DE STATUS - ATIVO/ESPORADICO/INATIVO - consome seu ?status= do Java */}
@@ -100,7 +100,7 @@ export default function ClientePage(){ // 3. Tela /cliente - LISTA E CADASTRA
         {loadingLista ? <p className="p-6">Carregando...</p> : (
           <table className="w-full text-sm">
             <thead className="bg-black/30 text-zinc-400 text-xs">
-              <tr><th className="p-3 text-left">Nome</th><th className="p-3 text-left">Email</th><th className="p-3 text-left">Status</th><th className="p-3 text-left">Último Acesso</th></tr>
+              <tr><th className="p-3 text-left">Nome</th><th className="p-3 text-left">Email</th><th className="p-3 text-left">Status</th><th className="p-3 text-left">Ãšltimo Acesso</th></tr>
             </thead>
             <tbody>
               {clientes.map((c:any)=>(

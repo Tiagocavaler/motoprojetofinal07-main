@@ -1,18 +1,16 @@
-"use client";
+﻿"use client";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 
 function gerarPixPayload(chave: string, valor: number, nome = "PAL STORE", cidade = "CRICIUMA") {
-  // payload PIX simplificado - chave 08134695973 só aqui no código
   const valorFmt = valor.toFixed(2);
-  // EMV padrão
   const payload = `00020126580014BR.GOV.BCB.PIX0114${chave}520400005303986540${valorFmt}5802BR5913${nome}6009${cidade}62070503***6304`;
   return payload;
 }
 
-export default function PagamentoPage() {
+function PagamentoContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const [pedido, setPedido] = useState<any>(null);
@@ -51,5 +49,13 @@ export default function PagamentoPage() {
       <button onClick={confirmar} className="max-w-md w-full mt-6 bg-green-600 py-4 rounded-xl font-black text-lg">JÁ PAGUEI - CONFIRMAR</button>
       <Link href="/pedidos" className="mt-3 text-zinc-400 text-sm">Acompanhar pedido depois</Link>
     </div>
+  );
+}
+
+export default function PagamentoPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0B1325] flex items-center justify-center text-white">Carregando pagamento...</div>}>
+      <PagamentoContent />
+    </Suspense>
   );
 }

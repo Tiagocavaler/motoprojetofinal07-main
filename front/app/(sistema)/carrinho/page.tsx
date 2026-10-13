@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
@@ -63,7 +63,7 @@ export default function PedidoPage() {
     carregar();
   };
 
-  // 4. NOVO: Finaliza pedido - NÃO devolve estoque, cria pedido e limpa carrinho
+  // 4. NOVO: Finaliza pedido - NÃƒO devolve estoque, cria pedido e limpa carrinho
   const finalizarPedido = async () => {
     if (finalizando) return;
     setFinalizando(true);
@@ -80,7 +80,7 @@ export default function PedidoPage() {
 
       if (error) throw error;
 
-      // Cria itens do pedido (se você tem tabela pedidos_itens)
+      // Cria itens do pedido (se vocÃª tem tabela pedidos_itens)
       if (pedido) {
         const itens = carrinho.map((i: any) => ({
           pedido_id: pedido.id,
@@ -94,7 +94,7 @@ export default function PedidoPage() {
       // Limpa carrinho sem devolver estoque (venda feita)
       await supabase.from("carrinho").delete().neq("id", "00000000-0000-0000-0000-000000000000");
       
-      alert("Pedido finalizado! Estoque já baixado");
+      alert("Pedido finalizado! Estoque jÃ¡ baixado");
       setCarrinho([]);
     } catch (e: any) {
       alert("Erro ao finalizar: " + e.message);
@@ -114,7 +114,7 @@ export default function PedidoPage() {
       {carrinho.length === 0 ? (
         <div className="mt-8 text-center">
           <p className="text-white/60">Carrinho vazio</p>
-          <Link href="/catalogo" className="mt-4 inline-block bg-[#E2C9A1] text-black px-6 py-3 rounded-xl font-bold">Ver Catálogo</Link>
+          <Link href="/catalogo" className="mt-4 inline-block bg-[#E2C9A1] text-black px-6 py-3 rounded-xl font-bold">Ver CatÃ¡logo</Link>
         </div>
       ) : (
         <div className="mt-6 grid gap-3 max-w-2xl">
@@ -154,3 +154,4 @@ export default function PedidoPage() {
     </div>
   );
 }
+

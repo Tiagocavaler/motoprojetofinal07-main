@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
@@ -19,7 +19,7 @@ export default function Page() {
   const [registerForm, setRegisterForm] = useState({ nome: '', cpf: '', email: '', senha: '', confirma: '', termos: false, privacidade: false });
   const [registerLoading, setRegisterLoading] = useState(false);
 
-  // 2. ATUALIZADO: LOGIN AGORA É 100% SUPABASE - NÃO PRECISA MAIS DO localhost:8081
+  // 2. ATUALIZADO: LOGIN AGORA Ã‰ 100% SUPABASE - NÃƒO PRECISA MAIS DO localhost:8081
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoginLoading(true);
@@ -40,9 +40,9 @@ export default function Page() {
       .eq("id", authData.user.id)
       .single();
 
-      // 5. NOVO: Se logou no Auth mas não tem linha em 'clientes' (usuário antigo), cria automaticamente
+      // 5. NOVO: Se logou no Auth mas nÃ£o tem linha em 'clientes' (usuÃ¡rio antigo), cria automaticamente
       if (cliError ||!cliente) {
-        console.log("Usuário sem perfil, criando agora...");
+        console.log("UsuÃ¡rio sem perfil, criando agora...");
         const nomeFix = authData.user.user_metadata?.nome || email.split('@')[0];
         const novoCliente = {
           id: authData.user.id,
@@ -59,11 +59,11 @@ export default function Page() {
         .select()
         .single();
 
-        if (errCriar) throw new Error("Logou mas não criou perfil: " + errCriar.message);
+        if (errCriar) throw new Error("Logou mas nÃ£o criou perfil: " + errCriar.message);
         cliente = criado;
       }
 
-      // 6. MANTIDO: Regra de reativação INATIVO/ESPORADICO -> ATIVO
+      // 6. MANTIDO: Regra de reativaÃ§Ã£o INATIVO/ESPORADICO -> ATIVO
       if (cliente.status === "INATIVO" || cliente.status === "ESPORADICO") {
         await supabase.from("clientes").update({ status: "ATIVO" }).eq("id", cliente.id);
         cliente.status = "ATIVO";
@@ -75,7 +75,7 @@ export default function Page() {
 
       setIsLoginOpen(false);
 
-      // 8. CORRIGIDO: Agora CLIENTE vai pra /home (ComunidadeClt) e ADMIN pra /admin - você pediu pra não ir pro catalogo direto
+      // 8. CORRIGIDO: Agora CLIENTE vai pra /home (ComunidadeClt) e ADMIN pra /admin - vocÃª pediu pra nÃ£o ir pro catalogo direto
       if (cliente.role === "ADMIN" || cliente.role === "ROLE_ADMIN") {
         router.push('/admin');
       } else {
@@ -89,13 +89,13 @@ export default function Page() {
     }
   };
 
-  // 10. ATUALIZADO: REGISTRO AGORA É 100% SUPABASE
+  // 10. ATUALIZADO: REGISTRO AGORA Ã‰ 100% SUPABASE
   const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!registerForm.termos) return alert('Você precisa aceitar os Termos de Uso');
-    if (!registerForm.privacidade) return alert('Você precisa aceitar a Política de Privacidade');
+    if (!registerForm.termos) return alert('VocÃª precisa aceitar os Termos de Uso');
+    if (!registerForm.privacidade) return alert('VocÃª precisa aceitar a PolÃ­tica de Privacidade');
     if (registerForm.senha!== registerForm.confirma) return alert('Senhas diferentes');
-    if (registerForm.senha.length < 6) return alert('Senha mínimo 6 caracteres');
+    if (registerForm.senha.length < 6) return alert('Senha mÃ­nimo 6 caracteres');
     setRegisterLoading(true);
     const email = registerForm.email.toLowerCase().trim();
     const cpfLimpo = registerForm.cpf? registerForm.cpf.replace(/\D/g, "") : "00000000000";
@@ -107,7 +107,7 @@ export default function Page() {
         options: { data: { nome: registerForm.nome } }
       });
       if (error) throw error;
-      if (!data.user) throw new Error("Não criou usuário");
+      if (!data.user) throw new Error("NÃ£o criou usuÃ¡rio");
 
       const { error: insertError } = await supabase.from("clientes").insert([{
         id: data.user.id,
@@ -161,20 +161,20 @@ export default function Page() {
 
       <section className="hero">
         <div className="hero-content">
-          <h1>Sua gestão de vendas no Palworld em outro nível.</h1>
-          <p>O ecossistema de gestão desenvolvido para jogadores otimizarem tempo, organizarem entregas.</p>
-          <a href="#recursos" className="btn btn-primary">Conheça a Plataforma</a>
+          <h1>Sua gestÃ£o de vendas no Palworld em outro nÃ­vel.</h1>
+          <p>O ecossistema de gestÃ£o desenvolvido para jogadores otimizarem tempo, organizarem entregas.</p>
+          <a href="#recursos" className="btn btn-primary">ConheÃ§a a Plataforma</a>
         </div>
         <div className="hero-card"><h3>Agenda Inteligente de Vendas</h3><p>Acompanhe seus pedidos e entregas in-game em tempo real.</p></div>
       </section>
 
       <section className="features" id="recursos">
         <div className="features-container">
-          <h2 className="section-title">Pensado para o dia a dia do seu negócio no Palworld</h2>
+          <h2 className="section-title">Pensado para o dia a dia do seu negÃ³cio no Palworld</h2>
           <div className="grid-features">
-            <div className="feature-card feature-card-1"><h3>Gestão de Produtos e Pals</h3><p>Organize seus produtos no painel.</p></div>
-            <div className="feature-card feature-card-2"><h3>Controle de Pedidos</h3><p>Histórico de compras e clientes.</p></div>
-            <div className="feature-card feature-card-3"><h3>Agenda de Serviços</h3><p>Gerencie datas e horários de entregas.</p></div>
+            <div className="feature-card feature-card-1"><h3>GestÃ£o de Produtos e Pals</h3><p>Organize seus produtos no painel.</p></div>
+            <div className="feature-card feature-card-2"><h3>Controle de Pedidos</h3><p>HistÃ³rico de compras e clientes.</p></div>
+            <div className="feature-card feature-card-3"><h3>Agenda de ServiÃ§os</h3><p>Gerencie datas e horÃ¡rios de entregas.</p></div>
           </div>
         </div>
       </section>
@@ -188,17 +188,17 @@ export default function Page() {
             <div className="main-container">
               <div className="magic-card">
                 <div className="arch-frame" onClick={() => setLoginLiberado(true)}><video autoPlay loop muted playsInline className="bunny-video"><source src="/bunny-hat.mp4" type="video/mp4" /></video></div>
-                {!loginLiberado && (<button className="badge-btn" onClick={() => setLoginLiberado(true)}>CLIQUE PARA LOGAR 👆</button>)}
+                {!loginLiberado && (<button className="badge-btn" onClick={() => setLoginLiberado(true)}>CLIQUE PARA LOGAR ðŸ‘†</button>)}
               </div>
               <div className="right-panel">
-                {!loginLiberado? (<div className="locked-card"><h2>Fazer Login</h2><p>🔒 Clique na coelhinha</p></div>) : (
+                {!loginLiberado? (<div className="locked-card"><h2>Fazer Login</h2><p>ðŸ”’ Clique na coelhinha</p></div>) : (
                   <div className="login-card">
                     <h2>Bem-vindo</h2><form onSubmit={handleLogin} className="modal-form">
                       <div className="form-group"><label>E-mail</label><input type="text" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required /></div>
                       <div className="form-group"><label>Senha</label><input type="password" value={loginSenha} onChange={(e) => setLoginSenha(e.target.value)} required /></div>
                       <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loginLoading}>{loginLoading? 'ENTRANDO...' : 'ENTRAR'}</button>
                       <Link href="/esqueci" onClick={() => setIsLoginOpen(false)} style={{color: 'var(--accent-sand)', fontSize: '0.8rem', textAlign: 'right', display: 'block', textDecoration: 'none'}}>Esqueceu sua senha?</Link>
-                      <a href="#" onClick={(e) => { e.preventDefault(); setIsLoginOpen(false); setIsRegisterOpen(true); }} style={{color: 'var(--accent-sand)', fontSize: '0.8rem', marginTop: '10px', display: 'block'}}>Não tem conta? Cadastre-se</a>
+                      <a href="#" onClick={(e) => { e.preventDefault(); setIsLoginOpen(false); setIsRegisterOpen(true); }} style={{color: 'var(--accent-sand)', fontSize: '0.8rem', marginTop: '10px', display: 'block'}}>NÃ£o tem conta? Cadastre-se</a>
                     </form>
                   </div>
                 )}
@@ -214,10 +214,10 @@ export default function Page() {
             <div className="main-container">
               <div className="magic-card">
                 <div className="arch-frame" onClick={() => setRegisterLiberado(true)}><video autoPlay loop muted playsInline className="bunny-video"><source src="/bunny-hat.mp4" type="video/mp4" /></video></div>
-                {!registerLiberado && (<button className="badge-btn" onClick={() => setRegisterLiberado(true)}>CLIQUE PARA CRIAR CONTA 👆</button>)}
+                {!registerLiberado && (<button className="badge-btn" onClick={() => setRegisterLiberado(true)}>CLIQUE PARA CRIAR CONTA ðŸ‘†</button>)}
               </div>
               <div className="right-panel">
-                {!registerLiberado? (<div className="locked-card"><h2>Criar Conta</h2><p>🔒 Clique na coelhinha</p></div>) : (
+                {!registerLiberado? (<div className="locked-card"><h2>Criar Conta</h2><p>ðŸ”’ Clique na coelhinha</p></div>) : (
                   <div className="login-card">
                     <h2>Criar conta</h2><form onSubmit={handleRegister} className="modal-form">
                       <div className="form-group"><label>Nome</label><input type="text" value={registerForm.nome} onChange={(e) => setRegisterForm({...registerForm, nome: e.target.value })} required /></div>
@@ -233,7 +233,7 @@ export default function Page() {
                         </label>
                         <label className="terms-label">
                           <input type="checkbox" checked={registerForm.privacidade} onChange={(e) => setRegisterForm({...registerForm, privacidade: e.target.checked })} required />
-                          <span>Eu li e aceito a <Link href="/privacidade" target="_blank" className="terms-link">Política de Privacidade</Link></span>
+                          <span>Eu li e aceito a <Link href="/privacidade" target="_blank" className="terms-link">PolÃ­tica de Privacidade</Link></span>
                         </label>
                       </div>
 
@@ -249,3 +249,4 @@ export default function Page() {
     </>
   );
 }
+

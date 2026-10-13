@@ -1,12 +1,7 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from "@/lib/supabaseClient";
 
 export default function AtualizarSenha() {
   const [senha, setSenha] = useState("");
@@ -16,7 +11,6 @@ export default function AtualizarSenha() {
   const router = useRouter();
 
   useEffect(() => {
-    // Pega o token que veio no link do e-mail
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
         setMsg("Link validado! Cadastre sua nova senha abaixo.");

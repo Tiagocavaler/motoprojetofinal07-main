@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { getTodosProdutosAdmin, padronizarTodosNomes, padronizaNome } from "@/lib/api";
@@ -37,7 +37,7 @@ export default function AdminPage() {
   const listaPublic = filtrar(itensPublic);
   const listaBanco = filtrar(produtos);
 
-  // usa a mesma função do api.ts pra não ter divergência
+  // usa a mesma funÃ§Ã£o do api.ts pra nÃ£o ter divergÃªncia
   const jaExiste = (arquivo: string, nomeOriginal: string) => {
     const nomeNorm = padronizaNome(nomeOriginal).toLowerCase();
     const imgBase = arquivo.split("/").pop()?.toLowerCase() || "";
@@ -85,7 +85,7 @@ export default function AdminPage() {
   };
 
   const padronizarTudo = async () => {
-    if(!confirm(`Padronizar nome de TODOS os ${produtos.length} produtos?\n\nEx:\nT_Anubis_icon_normal -> Anubis\nT_depresso_icon -> Depresso\npal_sphere_legendary -> Pal Sphere Legendary\n\nNÃO vai apagar nada, só renomear.`)) return;
+    if(!confirm(`Padronizar nome de TODOS os ${produtos.length} produtos?\n\nEx:\nT_Anubis_icon_normal -> Anubis\nT_depresso_icon -> Depresso\npal_sphere_legendary -> Pal Sphere Legendary\n\nNÃƒO vai apagar nada, sÃ³ renomear.`)) return;
     setCarregando(true);
     const qtd = await padronizarTodosNomes();
     alert(`Padronizados ${qtd} produtos! Todos agora com nome bonito.`);
@@ -94,7 +94,7 @@ export default function AdminPage() {
   };
 
   const removerProduto = async (id: any) => {
-    if(!id) return alert("Esse item não tem ID no banco ainda");
+    if(!id) return alert("Esse item nÃ£o tem ID no banco ainda");
     if(!confirm("Remover da loja?")) return;
     await supabase.from("produtos").delete().eq("id", id);
     carregar();
@@ -132,7 +132,7 @@ export default function AdminPage() {
       {selecionados.size>0 && (
         <div className="mt-4 p-4 bg-[#E2C9A1] rounded-xl flex gap-3 items-center text-black">
           <span className="font-bold text-sm">{selecionados.size} selecionados</span>
-          <input value={precoMassa} onChange={e=>setPrecoMassa(e.target.value)} className="w-24 p-2 rounded bg-white text-black text-sm" placeholder="Preço" />
+          <input value={precoMassa} onChange={e=>setPrecoMassa(e.target.value)} className="w-24 p-2 rounded bg-white text-black text-sm" placeholder="PreÃ§o" />
           <input value={qtdMassa} onChange={e=>setQtdMassa(e.target.value)} className="w-20 p-2 rounded bg-white text-black text-sm" placeholder="Qtd" />
           <button onClick={listarMassa} className="bg-black text-[#E2C9A1] px-4 py-2 rounded font-bold text-sm">LISTAR TODOS LIMPO</button>
         </div>
@@ -159,10 +159,10 @@ export default function AdminPage() {
           const existe = jaExiste(it.arquivo, it.nome);
           return (
             <div key={`pub-${idx}-${it.arquivo}`} className={`bg-[#162342] p-2 rounded-xl border ${selecionados.has(it.arquivo)?'border-[#E2C9A1]':'border-white/10'} ${existe?'opacity-50':''}`}>
-              {!existe? <input type="checkbox" checked={selecionados.has(it.arquivo)} onChange={()=>toggleSelect(it.arquivo)} className="mb-1" /> : <span className="text-[9px] text-green-400">✅ NA LOJA</span>}
+              {!existe? <input type="checkbox" checked={selecionados.has(it.arquivo)} onChange={()=>toggleSelect(it.arquivo)} className="mb-1" /> : <span className="text-[9px] text-green-400">âœ… NA LOJA</span>}
               <img src={it.arquivo} className="h-20 w-full object-contain" alt="" />
               <p className="text-[10px] truncate" title={it.nome}>{it.nome}</p>
-              <p className="text-[9px] text-[#E2C9A1] truncate">→ {padronizaNome(it.nome)}</p>
+              <p className="text-[9px] text-[#E2C9A1] truncate">â†’ {padronizaNome(it.nome)}</p>
             </div>
           )
         })}
@@ -174,7 +174,7 @@ export default function AdminPage() {
             <h3 className="font-bold text-[#E2C9A1]">Editar {editando.nome}</h3>
             <input value={editando.nome} onChange={e=>setEditando({...editando, nome: e.target.value})} className="w-full mt-3 p-3 rounded bg-[#0B1325] border border-white/10 text-sm" placeholder="Nome" />
             <p className="text-[10px] text-[#E2C9A1] mt-1">Vai salvar como: {padronizaNome(editando.nome)}</p>
-            <input value={editando.preco} onChange={e=>setEditando({...editando, preco: e.target.value})} className="w-full mt-2 p-3 rounded bg-[#0B1325] border border-white/10 text-sm" placeholder="Preço" />
+            <input value={editando.preco} onChange={e=>setEditando({...editando, preco: e.target.value})} className="w-full mt-2 p-3 rounded bg-[#0B1325] border border-white/10 text-sm" placeholder="PreÃ§o" />
             <input value={editando.estoque} onChange={e=>setEditando({...editando, estoque: e.target.value})} className="w-full mt-2 p-3 rounded bg-[#0B1325] border border-white/10 text-sm" placeholder="Estoque" />
             <div className="flex gap-2 mt-4">
               <button onClick={()=>setEditando(null)} className="flex-1 bg-white/10 py-2 rounded text-sm">Cancelar</button>
@@ -186,3 +186,4 @@ export default function AdminPage() {
     </div>
   );
 }
+
