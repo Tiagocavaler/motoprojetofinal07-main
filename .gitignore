@@ -32,3 +32,9 @@ build/
 
 ### VS Code ###
 .vscode/
+MotoProjeto/runtime/
+MotoProjeto/target/
+javafx-jmods-17.0.13/
+runtime/
+installer/
+src/main/resources/static/

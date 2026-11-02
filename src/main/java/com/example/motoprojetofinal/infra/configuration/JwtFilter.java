@@ -23,17 +23,42 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         String uri = request.getRequestURI();
+        String method = request.getMethod();
 
-        // ROTAS PUBLICAS - libera sem checar token + H2 + CORS preflight
-        if(request.getMethod().equals("OPTIONS") ||
-                uri.startsWith("/swagger-ui")
-                || uri.startsWith("/v3/api-docs")
-                || uri.startsWith("/swagger-resources")
-                || uri.startsWith("/webjars")
-                || uri.startsWith("/h2-console")
-                || uri.startsWith("/auth")
-                || uri.startsWith("/usuarios")
-                || uri.startsWith("/admin")){
+        // 1. Libera TUDO do front herdado + API publica + preflight
+        if (method.equals("OPTIONS") ||
+                uri.equals("/") ||
+                uri.equals("/index.html") ||
+                uri.equals("/favicon.ico") ||
+                uri.startsWith("/_next") ||
+                uri.startsWith("/assets") ||
+                uri.startsWith("/static") ||
+                uri.startsWith("/home") ||
+                uri.startsWith("/armas") ||
+                uri.startsWith("/armaduras") ||
+                uri.startsWith("/perfil") ||
+                uri.startsWith("/produto") ||
+                uri.startsWith("/carrinho") ||
+                uri.startsWith("/checkout") ||
+                uri.startsWith("/login") ||
+                uri.startsWith("/swagger-ui") ||
+                uri.startsWith("/v3/api-docs") ||
+                uri.startsWith("/swagger-resources") ||
+                uri.startsWith("/webjars") ||
+                uri.startsWith("/h2-console") ||
+                uri.startsWith("/auth") ||
+                uri.startsWith("/usuarios") ||
+                uri.endsWith(".js") ||
+                uri.endsWith(".css") ||
+                uri.endsWith(".png") ||
+                uri.endsWith(".jpg") ||
+                uri.endsWith(".jpeg") ||
+                uri.endsWith(".webp") ||
+                uri.endsWith(".svg") ||
+                uri.endsWith(".woff") ||
+                uri.endsWith(".woff2") ||
+                uri.endsWith(".ico") ||
+                uri.equals("/error")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -49,8 +74,14 @@ public class JwtFilter extends OncePerRequestFilter {
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (Exception e) {
+                // IMPORTANTE: devolve 401 COM CORS, senão o front dá NetworkError
+                response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin") != null ? request.getHeader("Origin") : "*");
+                response.setHeader("Access-Control-Allow-Credentials", "true");
+                response.setHeader("Access-Control-Allow-Methods", "*");
+                response.setHeader("Access-Control-Allow-Headers", "*");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().println("Token invalido: " + e.getMessage());
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"error\":\"Token invalido: " + e.getMessage().replace("\"", "") + "\"}");
                 return;
             }
         }

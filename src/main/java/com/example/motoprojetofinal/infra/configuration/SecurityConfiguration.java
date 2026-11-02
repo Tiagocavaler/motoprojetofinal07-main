@@ -26,38 +26,65 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
+        var builder = http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .headers(headers -> headers.frameOptions(frame -> frame.disable())) // pro H2 funcionar
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/",
+                                "/index.html",
+                                "/favicon.ico",
+                                "/_next/**",
+                                "/*.js",
+                                "/*.css",
+                                "/assets/**",
+                                "/static/**",
+                                "/home",
+                                "/home/**",
+                                "/armas",
+                                "/armas/**",
+                                "/armaduras",
+                                "/armaduras/**",
+                                "/perfil",
+                                "/perfil/**",
+                                "/produto/**",
+                                "/carrinho",
+                                "/carrinho/**",
+                                "/checkout/**",
+                                "/admin/**",
+                                "/login/**",
                                 "/auth/**",
                                 "/usuarios/**",
-                                "/admin/**",
                                 "/h2-console/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
                                 "/error"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        if (jwtFilter != null) {
+            builder.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        }
+
+        return builder.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "http://localhost:3001",
                 "http://localhost:5173",
-                "http://localhost:5174"
+                "http://localhost:5174",
+                "http://localhost:8081"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));

@@ -9,8 +9,8 @@ public class DatabaseManager {
     private static final String SUPABASE_USER = "postgres";
     private static final String SUPABASE_PASS = "SUA_SENHA_DO_SUPABASE";
 
-    // Banco local que salva na pasta /data
-    private static final String LOCAL_URL = "jdbc:h2:file:./data/motodb_local;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=-1";
+    // Banco local que salva na pasta /data - CORRIGIDO PARA H2 2.2.224
+    private static final String LOCAL_URL = "jdbc:h2:file:./data/motodb_local;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE";
 
     public static Connection getConnection() {
         try {
