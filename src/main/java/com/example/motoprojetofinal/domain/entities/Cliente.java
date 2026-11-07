@@ -21,38 +21,49 @@ public class Cliente extends Usuario {
     private LocalDateTime ultimaCompra;
     private LocalDateTime ultimoLogin;
 
-    @Column(name = "ultimo_acesso") // 1. NOVO CAMPO - usado pelo PATCH /{id}/acesso do login
+    @Column(name = "ultimo_acesso")
     private LocalDateTime ultimoAcesso;
 
     private boolean ativo = true;
 
+    // SET CPF SEM PRECISAR DA CLASSE Cpf - só limpa e deixa só números
+    public void setCpf(String cpf) {
+        if (cpf == null) {
+            this.cpf = null;
+            return;
+        }
+        // tira ponto, traço e espaço: 123.456.789-00 -> 12345678900
+        String limpo = cpf.replaceAll("[^0-9]", "");
+        this.cpf = limpo;
+    }
+
     public void atualizarStatusAutomatico() {
-        // 2. Se nunca comprou, verifica só pelo login/acesso - seu caso MotoTrack
+        // Se nunca comprou, verifica só pelo login/acesso
         if (ultimaCompra == null) {
-            // 3. Se nunca logou também, é ATIVO (acabou de cadastrar)
+            // Se nunca logou também, é ATIVO (acabou de cadastrar)
             if (ultimoLogin == null && ultimoAcesso == null) {
                 status = EnumStatusCliente.ATIVO;
                 ativo = true;
                 return;
             }
-            // 4. Calcula dias sem logar - usa ultimoAcesso como principal agora
+            // Calcula dias sem logar - usa ultimoAcesso como principal agora
             LocalDateTime referencia = ultimoAcesso != null ? ultimoAcesso : ultimoLogin;
             long diasSemLogar = ChronoUnit.DAYS.between(referencia, LocalDateTime.now());
 
             if (diasSemLogar <= 30) {
-                status = EnumStatusCliente.ATIVO; // 5. Logou nos últimos 30 dias = ATIVO
+                status = EnumStatusCliente.ATIVO;
                 ativo = true;
             } else if (diasSemLogar <= 90) {
-                status = EnumStatusCliente.ESPORADICO; // 6. Logou entre 31-90 dias = ESPORADICO
+                status = EnumStatusCliente.ESPORADICO;
                 ativo = true;
             } else {
-                status = EnumStatusCliente.INATIVO; // 7. 90+ dias sem logar = INATIVO
+                status = EnumStatusCliente.INATIVO;
                 ativo = false;
             }
             return;
         }
 
-        // 8. Lógica original se já tem compra - compra é mais importante que login
+        // Lógica original se já tem compra - compra é mais importante que login
         long diasSemComprar = ChronoUnit.DAYS.between(ultimaCompra, LocalDateTime.now());
         long diasSemLogar = ultimoLogin == null ? 999 : ChronoUnit.DAYS.between(ultimoLogin, LocalDateTime.now());
 

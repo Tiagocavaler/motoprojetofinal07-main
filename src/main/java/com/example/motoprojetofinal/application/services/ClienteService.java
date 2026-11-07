@@ -5,6 +5,7 @@ import com.example.motoprojetofinal.application.dtos.ClienteResponseDTO;
 import com.example.motoprojetofinal.domain.entities.Cliente;
 import com.example.motoprojetofinal.domain.entities.EnumStatusCliente;
 import com.example.motoprojetofinal.domain.entities.Role;
+import com.example.motoprojetofinal.domain.entities.Usuario;
 import com.example.motoprojetofinal.domain.repository.ClienteRepository;
 import com.example.motoprojetofinal.domain.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +28,8 @@ public class ClienteService {
     public ClienteResponseDTO cadastrar(ClienteRequestDTO dto) {
         String emailLimpo = dto.email().toLowerCase().trim();
 
-        if (usuarioRepository.existsByEmail(emailLimpo) || clienteRepository.existsByEmail(emailLimpo)) {
-            throw new RuntimeException("Email já cadastrado");
+        if (usuarioRepository.existePorEmail(emailLimpo) || clienteRepository.existsByEmail(emailLimpo)) {
+            throw new RuntimeException("E-mail já cadastrado");
         }
 
         String cpfFinal = gerarCpfValido(dto.cpf());
@@ -69,17 +70,11 @@ public class ClienteService {
         String emailLimpo = email.toLowerCase().trim();
         var clienteOpt = clienteRepository.findByEmail(emailLimpo);
 
-        var usuario = clienteOpt.<Object>map(c -> (Object)c)
-                .orElseGet(() -> usuarioRepository.findByEmail(emailLimpo)
-                        .orElseThrow(() -> new RuntimeException("E-mail ou senha incorretos")));
-
-        // validação de senha centralizada
-        String senhaBanco = (usuario instanceof Cliente c) ? c.getSenha() : ((com.example.motoprojetofinal.domain.entities.Usuario)usuario).getSenha();
-        if(!passwordEncoder.matches(senha, senhaBanco)){
-            throw new RuntimeException("E-mail ou senha incorretos");
-        }
-
-        if (usuario instanceof Cliente cliente) {
+        if (clienteOpt.isPresent()) {
+            Cliente cliente = clienteOpt.get();
+            if(!passwordEncoder.matches(senha, cliente.getSenha())){
+                throw new RuntimeException("E-mail ou senha incorretos");
+            }
             if(cliente.getStatus() == EnumStatusCliente.EXCLUIDO){
                 throw new RuntimeException("Conta excluída");
             }
@@ -88,6 +83,14 @@ public class ClienteService {
             cliente.setStatus(EnumStatusCliente.ATIVO);
             cliente.setAtivo(true);
             return toResponse(clienteRepository.save(cliente));
+        }
+
+        // Se não achou como Cliente, tenta como Usuario
+        Usuario usuario = usuarioRepository.buscarPorEmail(emailLimpo)
+                .orElseThrow(() -> new RuntimeException("E-mail ou senha incorretos"));
+
+        if(!passwordEncoder.matches(senha, usuario.getSenha())){
+            throw new RuntimeException("E-mail ou senha incorretos");
         }
 
         // Usuário sem ser Cliente - agora lança erro correto em vez de criar fake

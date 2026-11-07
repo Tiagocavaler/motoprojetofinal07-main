@@ -1,9 +1,11 @@
 package com.example.motoprojetofinal.domain.repository;
+
 import com.example.motoprojetofinal.domain.entities.Usuario;
-import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
-public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
-    Optional<Usuario> findByEmail(String email);
-    boolean existsByEmail(String email);
+public interface UsuarioRepository {
+    Usuario salvar(Usuario usuario);
+    Optional<Usuario> buscarPorEmail(String email);
+    Optional<Usuario> buscarPorId(Long id);
+    boolean existePorEmail(String email);
 }

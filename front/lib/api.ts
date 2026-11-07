@@ -44,6 +44,33 @@ export function padronizaNome(nome: string) {
     .join(" ");
 }
 
+// NOVO - LISTA OS 500 PNGS DOS BUCKETS DIRETO DO SUPABASE STORAGE (FUNCIONA NO OUT ESTÁTICO)
+export async function getItensPublicDoBucket() {
+  // TROQUE AQUI PELO NOME DO SEU BUCKET NO SUPABASE ONDE TÃO OS 500 PNGS
+  const BUCKET = "produtos"; // tente "produtos", "imagens", "pals", "itens", "public"
+  const { data, error } = await supabase.storage.from(BUCKET).list("", { limit: 1000 });
+  if (error) {
+    console.warn("Bucket", BUCKET, "erro:", error.message, "- tentando fallback /api/itens");
+    // Fallback pro antigo se bucket não existir
+    try {
+      const res = await fetch("/api/itens");
+      if (res.ok) return await res.json();
+    } catch {}
+    throw error;
+  }
+  return data
+    .filter((f: any) => /\.(png|webp|jpg|jpeg)$/i.test(f.name))
+    .map((f: any) => {
+      const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(f.name);
+      return {
+        arquivo: urlData.publicUrl, // URL em formato de link pra não pesar
+        nome: f.name.replace(/\.[^/.]+$/, ""), // tira .png -> já vira nome auto
+        categoria: f.name.split("_")[0] || "pal",
+        tipo: f.name.split("_")[0] || "pal"
+      };
+    });
+}
+
 export async function getProdutos() {
   const { data, error } = await supabase.from('produtos').select('*').eq('ativo_na_loja', true).order('nome')
   if (error) throw error

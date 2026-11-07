@@ -14,13 +14,13 @@ public class AdminSeeder {
     CommandLineRunner criarAdmin(UsuarioRepository usuarioRepo) {
         return args -> {
             String email = "admin@palworld.com";
-            if (usuarioRepo.findByEmail(email).isEmpty()) {
+            if (usuarioRepo.buscarPorEmail(email).isEmpty()) {
                 Administrador admin = new Administrador();
                 admin.setNome("Admin Palworld");
                 admin.setEmail(email);
                 admin.setSenha(new BCryptPasswordEncoder().encode("admin123"));
 
-                usuarioRepo.save(admin);
+                usuarioRepo.salvar(admin);
                 System.out.println(">>> ADMIN CRIADO: admin@palworld.com / admin123");
             } else {
                 System.out.println(">>> ADMIN JA EXISTE");

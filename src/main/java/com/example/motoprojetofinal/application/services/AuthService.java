@@ -25,7 +25,7 @@ public class AuthService {
 
         System.out.println("Tentando login: " + email);
 
-        var usuario = usuarioRepository.findByEmail(email)
+        var usuario = usuarioRepository.buscarPorEmail(email)
                 .orElseThrow(() -> new RuntimeException("E-mail ou senha incorretos"));
 
         if (!passwordEncoder.matches(senhaDigitada, usuario.getSenha())) {

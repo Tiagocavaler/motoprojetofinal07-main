@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
+import com.example.motoprojetofinal.domain.ValueObjects.Email;
 
 @Entity
 @Data
@@ -26,6 +27,12 @@ public class Usuario implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role = Role.CLIENTE;
+
+    // VALUE OBJECT - EMAIL
+    // O banco continua String, mas quem valida é o VO
+    public void setEmail(String email) {
+        this.email = new Email(email).valor();
+    }
 
     @Override public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));

@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
-    // O Spring Data JPA cria as operações automáticas baseadas no ID do tipo Long
 }

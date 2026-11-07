@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { getTodosProdutosAdmin, padronizarTodosNomes, padronizaNome } from "@/lib/api";
+import { getTodosProdutosAdmin, padronizarTodosNomes, padronizaNome, getItensPublicDoBucket } from "@/lib/api";
 
 const API_JAVA = "http://localhost:8081";
 
@@ -21,7 +21,7 @@ export default function AdminPage() {
   const carregar = async () => {
     const [prodSupabase, pubRes] = await Promise.all([
       getTodosProdutosAdmin().catch(()=>[]),
-      fetch("/api/itens").then(r=>r.json()).catch(()=>[])
+      getItensPublicDoBucket().catch((e)=>{ console.warn("Bucket falhou, tentando /api/itens", e); return fetch("/api/itens").then(r=>r.json()).catch(()=>[]) })
     ]);
     setProdutos(Array.isArray(prodSupabase)? prodSupabase : []);
     setItensPublic(Array.isArray(pubRes)? pubRes : []);
@@ -37,7 +37,6 @@ export default function AdminPage() {
   const listaPublic = filtrar(itensPublic);
   const listaBanco = filtrar(produtos);
 
-  // usa a mesma função do api.ts pra não ter divergência
   const jaExiste = (arquivo: string, nomeOriginal: string) => {
     const nomeNorm = padronizaNome(nomeOriginal).toLowerCase();
     const imgBase = arquivo.split("/").pop()?.toLowerCase() || "";
@@ -78,6 +77,7 @@ export default function AdminPage() {
         tipo: item.categoria || "pal"
       }]);
       if (!error) inseridos++;
+      else console.error("Erro inserir", item.nome, error);
     }
     alert(`Listados: ${inseridos} | Duplicados pulados: ${pulados}`);
     setSelecionados(new Set());
@@ -153,7 +153,7 @@ export default function AdminPage() {
         ))}
       </div>
 
-      <h2 className="mt-10 font-bold text-zinc-400">PUBLIC - {novosPublic.length} novos</h2>
+      <h2 className="mt-10 font-bold text-zinc-400">PUBLIC - {novosPublic.length} novos (buckets em URL)</h2>
       <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mt-3">
         {listaPublic.map((it:any, idx:number)=>{
           const existe = jaExiste(it.arquivo, it.nome);

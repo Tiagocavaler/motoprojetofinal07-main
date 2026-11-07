@@ -36,15 +36,13 @@ public class PedidoService {
         BigDecimal total = BigDecimal.ZERO;
 
         for (ItemPedidoDTO itemDto : dto.itens()) {
-            Produto produto = produtoRepository.findById(itemDto.produtoId()) // 1. Agora já é Long
+            Produto produto = produtoRepository.findById(itemDto.produtoId())
                     .orElseThrow(() -> new RuntimeException("Produto não encontrado: " + itemDto.produtoId()));
 
-            // 2. VALIDAÇÃO DE ESTOQUE - O QUE FALTAVA
             if (produto.getEstoque() == null || produto.getEstoque() < itemDto.quantidade()) {
                 throw new RuntimeException("Estoque insuficiente para o produto: " + produto.getNome() + " | Disponível: " + produto.getEstoque());
             }
 
-            // 3. BAIXA DE ESTOQUE REAL - Mantém buckets intactos, só muda o número
             produto.setEstoque(produto.getEstoque() - itemDto.quantidade());
             produtoRepository.save(produto);
 
