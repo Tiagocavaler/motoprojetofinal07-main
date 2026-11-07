@@ -7,17 +7,22 @@ import com.example.motoprojetofinal.domain.entities.Role;
 import com.example.motoprojetofinal.domain.repository.AdministradorRepository;
 import com.example.motoprojetofinal.domain.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AdminService {
 
     private final UsuarioRepository usuarioRepository;
     private final AdministradorRepository administradorRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public AdminResponseDTO criarAdmin(AdminRequestDTO dto) {
         String emailLimpo = dto.email().toLowerCase().trim();
 

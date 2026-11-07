@@ -24,5 +24,8 @@ public class Administrador extends Usuario {
         if (this.matricula == null || this.matricula.isBlank()) {
             this.matricula = "ADM-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         }
+        // garante offline-first herdado do Usuario
+        if (getOrigem() == null) setOrigem("LOCAL");
+        if (getSincronizado() == null) setSincronizado(false);
     }
 }

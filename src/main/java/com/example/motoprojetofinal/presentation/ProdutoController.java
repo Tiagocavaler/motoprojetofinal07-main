@@ -3,7 +3,9 @@ package com.example.motoprojetofinal.presentation;
 import com.example.motoprojetofinal.application.services.ProdutoSyncService;
 import com.example.motoprojetofinal.application.services.ProdutoService;
 import com.example.motoprojetofinal.domain.entities.Produto;
+import com.example.motoprojetofinal.domain.repository.ProdutoRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -12,23 +14,26 @@ import java.util.List;
 @RequestMapping("/produtos")
 @RequiredArgsConstructor
 public class ProdutoController {
+    private final ProdutoRepository produtoRepository;
+    private final SyncService syncService;
 
     private final ProdutoSyncService produtoSyncService;
     private final ProdutoService produtoService;
 
     @GetMapping
     public ResponseEntity<List<Produto>> listarTodos() {
-        return ResponseEntity.ok(produtoService.listarTodos());
+        return ResponseEntity.ok(produtoRepository.findByAtivoNaLojaTrue());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Produto> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(produtoService.buscarPorId(id));
+        return ResponseEntity.ok(produtoRepository.findById(id).orElseThrow());
     }
 
     @PostMapping("/sync")
     public ResponseEntity<String> sincronizar() {
-        produtoSyncService.sincronizarProdutos();
-        return ResponseEntity.ok("Catálogo atualizado com sucesso!");
+        if (!syncService.temInternet()) return ResponseEntity.ok("Offline - " + produtoRepository.findByAtivoNaLojaTrue().size() + " no H2");
+        syncService.sincronizarSeOnline();
+        return ResponseEntity.ok("Atualizado - " + produtoRepository.findByAtivoNaLojaTrue().size() + " produtos");
     }
 }

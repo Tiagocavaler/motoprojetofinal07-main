@@ -14,7 +14,6 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final String frontendUrl;
 
-    // @Autowired(required = false) faz o Spring NÃO quebrar se não achar o bean do e-mail
     public EmailService(@Autowired(required = false) JavaMailSender mailSender,
                         @Value("${app.frontend.url:http://localhost:3000}") String frontendUrl) {
         this.mailSender = mailSender;
@@ -23,12 +22,9 @@ public class EmailService {
 
     public void enviarLinkReset(String email, String token) {
         if (mailSender == null) {
-            log.warn("[EMAIL MOCK] Sem config de e-mail, mas gerando link para: {}", email);
-            log.warn("[EMAIL MOCK] Link seria: {}/recuperar?token={}", frontendUrl, token);
-            System.out.println("LINK DE RECUPERAÇÃO: " + frontendUrl + "/recuperar?token=" + token);
+            log.warn("[EMAIL MOCK] Sem SMTP configurado - Link: {}/recuperar?token={}", frontendUrl, token);
             return;
         }
-
         try {
             SimpleMailMessage msg = new SimpleMailMessage();
             msg.setFrom("firestorm134679@gmail.com");
@@ -37,13 +33,11 @@ public class EmailService {
             msg.setText("Clique no link para recuperar sua senha:\n\n" +
                     frontendUrl + "/recuperar?token=" + token + "\n\n" +
                     "Esse link expira em 30 minutos.");
-
             mailSender.send(msg);
             log.info("E-mail enviado para: {}", email);
         } catch (Exception e) {
-            log.error("ERRO AO ENVIAR E-MAIL para {}: {}", email, e.getMessage());
-            // Não joga exceção, senão quebra o fluxo de recuperar senha
-            System.out.println("LINK DE RECUPERAÇÃO (fallback): " + frontendUrl + "/recuperar?token=" + token);
+            log.error("ERRO AO ENVIAR E-MAIL para {}: {} - Link fallback: {}/recuperar?token={}",
+                    email, e.getMessage(), frontendUrl, token);
         }
     }
 }

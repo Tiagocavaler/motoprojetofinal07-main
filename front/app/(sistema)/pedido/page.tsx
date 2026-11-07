@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from "react";
 import { getCarrinho, updateQuantidadeCarrinho, removerCarrinho, criarPedido } from "@/lib/api";
 import Link from "next/link";
@@ -67,7 +67,7 @@ export default function PedidoPage() {
       {carrinho.length === 0 ? (
         <div className="mt-20 text-center">
           <p className="text-white/60 text-xl mb-6">Carrinho vazio</p>
-          <Link href="/catalogo" className="bg-[#E2C9A1] text-black px-8 py-4 rounded-xl font-black inline-block">Ver Catálogo</Link>
+          <Link href="/catalogo" className="bg-[#E2C9A1] text-black px-8 py-4 rounded-xl font-black inline-block">Ver CatÃ¡logo</Link>
         </div>
       ) : (
         <div className="max-w-3xl mx-auto">

@@ -3,28 +3,34 @@ package com.example.motoprojetofinal.domain.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@Table(name = "cliente")
-@PrimaryKeyJoinColumn(name = "usuario_id")
+@Table(name = "clientes")
+@PrimaryKeyJoinColumn(name = "id")
 public class Cliente extends Usuario {
+
+    @Column(unique = true)
     private String cpf;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private EnumStatusCliente status = EnumStatusCliente.ATIVO;
 
-    private LocalDateTime ultimaCompra;
+    @Column
+    private Boolean ativo = true;
+
+    @Column
     private LocalDateTime ultimoLogin;
 
     @Column(name = "ultimo_acesso")
     private LocalDateTime ultimoAcesso;
 
-    private boolean ativo = true;
+    @Column
+    private LocalDateTime ultimaCompra;
 
     // SET CPF SEM PRECISAR DA CLASSE Cpf - só limpa e deixa só números
     public void setCpf(String cpf) {

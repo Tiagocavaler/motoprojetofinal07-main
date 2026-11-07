@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -41,7 +41,7 @@ export default function EsqueciSenha(){
         <h1 className="text-white font-bold text-xl">Recuperar senha</h1>
         {erro && <p className="text-red-300 bg-red-500/20 p-3 rounded-lg mt-4 text-sm">{erro}</p>}
         {ok ? (
-          <p className="text-green-300 mt-4">Se o e-mail existir, enviamos o link! Verifique seu e-mail. (10 min, uso único, máx 3 por dia)</p>
+          <p className="text-green-300 mt-4">Se o e-mail existir, enviamos o link! Verifique seu e-mail. (10 min, uso Ãºnico, mÃ¡x 3 por dia)</p>
         ) : (
           <form onSubmit={handle} className="mt-4 space-y-3">
             <input value={email} onChange={(e)=>setEmail(e.target.value)} type="email" placeholder="seu@email.com" className="w-full p-3 rounded-lg bg-black/30 text-white" required />

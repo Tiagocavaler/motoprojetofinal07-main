@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -54,7 +54,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#0B1325] flex items-center justify-center p-4 text-white">
       <div className="bg-[#162342] p-8 rounded-2xl w-full max-w-sm border border-white/10">
-        <Link href="/" className="text-xs text-gray-400">← Voltar</Link>
+        <Link href="/" className="text-xs text-gray-400">â† Voltar</Link>
         <h1 className="text-2xl font-black text-[#E2C9A1] mt-4">Entrar</h1>
         <p className="text-[11px] text-gray-400 mt-1">Acesse sua conta</p>
 
@@ -71,7 +71,7 @@ export default function LoginPage() {
           {loading? "ENTRANDO..." : "ENTRAR"}
         </button>
 
-        <p className="text-center text-[11px] mt-4 text-zinc-400">Não tem conta? <Link href="/register" className="text-[#E2C9A1]">Cadastre-se</Link></p>
+        <p className="text-center text-[11px] mt-4 text-zinc-400">NÃ£o tem conta? <Link href="/register" className="text-[#E2C9A1]">Cadastre-se</Link></p>
       </div>
     </div>
   );

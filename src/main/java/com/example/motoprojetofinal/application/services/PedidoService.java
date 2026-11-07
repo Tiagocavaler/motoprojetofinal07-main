@@ -8,15 +8,18 @@ import com.example.motoprojetofinal.domain.repository.ClienteRepository;
 import com.example.motoprojetofinal.domain.repository.PedidoRepository;
 import com.example.motoprojetofinal.domain.repository.ProdutoRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PedidoService {
 
     private final PedidoRepository pedidoRepository;
@@ -32,6 +35,7 @@ public class PedidoService {
         pedido.setCliente(cliente);
         pedido.setDataPedido(LocalDateTime.now());
         pedido.setStatus("PENDENTE");
+        pedido.setItens(new ArrayList<>());
 
         BigDecimal total = BigDecimal.ZERO;
 
@@ -53,19 +57,21 @@ public class PedidoService {
             item.setPrecoUnitario(produto.getPreco());
 
             pedido.getItens().add(item);
-
             total = total.add(item.getPrecoUnitario().multiply(BigDecimal.valueOf(item.getQuantidade())));
         }
 
         pedido.setTotal(total);
         Pedido salvo = pedidoRepository.save(pedido);
+        log.info("Pedido {} criado offline no H2 - Total: {}", salvo.getId(), total);
         return toResponse(salvo);
     }
 
+    @Transactional(readOnly = true)
     public List<PedidoResponseDTO> listarTodos() {
         return pedidoRepository.findAll().stream().map(this::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
     public PedidoResponseDTO buscarPorId(Long id) {
         Pedido pedido = pedidoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
@@ -73,12 +79,9 @@ public class PedidoService {
     }
 
     private PedidoResponseDTO toResponse(Pedido pedido) {
-        List<ItemPedidoDTO> itensDto = pedido.getItens().stream()
-                .map(item -> new ItemPedidoDTO(
-                        item.getProduto().getId(),
-                        item.getQuantidade()
-                )).toList();
-
+        List<ItemPedidoDTO> itensDto = pedido.getItens() != null ? pedido.getItens().stream()
+                .map(item -> new ItemPedidoDTO(item.getProduto().getId(), item.getQuantidade()))
+                .toList() : List.of();
         return new PedidoResponseDTO(
                 pedido.getId(),
                 pedido.getDataPedido(),

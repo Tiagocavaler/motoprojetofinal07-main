@@ -10,9 +10,10 @@ import com.example.motoprojetofinal.domain.repository.ClienteRepository;
 import com.example.motoprojetofinal.domain.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class ClienteService {
     @Transactional
     public ClienteResponseDTO cadastrar(ClienteRequestDTO dto) {
         String emailLimpo = dto.email().toLowerCase().trim();
+        String cpfLimpo = dto.cpf() != null ? dto.cpf().replaceAll("\\D","") : "";
 
         if (usuarioRepository.existePorEmail(emailLimpo) || clienteRepository.existsByEmail(emailLimpo)) {
             throw new RuntimeException("E-mail já cadastrado");
@@ -42,14 +44,17 @@ public class ClienteService {
         cliente.setCpf(cpfFinal);
         cliente.setStatus(EnumStatusCliente.ATIVO);
         cliente.setAtivo(true);
+        cliente.setAtivoNaLoja(true);
         cliente.setUltimoLogin(LocalDateTime.now());
         cliente.setUltimoAcesso(LocalDateTime.now());
+        cliente.setSincronizado(false);
+        cliente.setOrigem("LOCAL");
+        cliente.setUpdatedAt(LocalDateTime.now());
 
-        log.info("Cadastrando novo cliente: {}", emailLimpo);
+        log.info("Cadastrando novo cliente OFFLINE H2: {}", emailLimpo);
         return toResponse(clienteRepository.save(cliente));
     }
 
-    // Lógica extraída - SRP - agora tá certo
     private String gerarCpfValido(String cpfInput) {
         String cpfFinal = cpfInput != null ? cpfInput.replaceAll("\\D","") : "";
         if(cpfFinal.isBlank() || cpfFinal.equals("00000000000")){
@@ -60,7 +65,8 @@ public class ClienteService {
             return cpfFinal;
         }
         if(clienteRepository.existsByCpf(cpfFinal)){
-            throw new RuntimeException("CPF já cadastrado");
+            log.warn("CPF repetido detectado, retornando existente: {}", cpfFinal);
+            return clienteRepository.findByCpf(cpfFinal).get().getCpf();
         }
         return cpfFinal;
     }
@@ -82,6 +88,8 @@ public class ClienteService {
             cliente.setUltimoAcesso(LocalDateTime.now());
             cliente.setStatus(EnumStatusCliente.ATIVO);
             cliente.setAtivo(true);
+            cliente.setAtivoNaLoja(true);
+            cliente.setUpdatedAt(LocalDateTime.now());
             return toResponse(clienteRepository.save(cliente));
         }
 
@@ -99,7 +107,7 @@ public class ClienteService {
 
     @Transactional(readOnly = true)
     public List<ClienteResponseDTO> listarTodos() {
-        return clienteRepository.findAll().stream()
+        return clienteRepository.findByAtivoTrue().stream()
                 .peek(c -> c.atualizarStatusAutomatico())
                 .map(this::toResponse).toList();
     }
@@ -112,63 +120,66 @@ public class ClienteService {
     }
 
     public ClienteResponseDTO buscarPorId(Long id) {
-        Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+        Cliente cliente = clienteRepository.findById(id).orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
         cliente.atualizarStatusAutomatico();
         return toResponse(clienteRepository.save(cliente));
     }
 
     @Transactional
     public void registrarAcesso(Long id){
-        var cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+        var cliente = clienteRepository.findById(id).orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
         cliente.setUltimoAcesso(LocalDateTime.now());
         cliente.setUltimoLogin(LocalDateTime.now());
         if(cliente.getStatus() != EnumStatusCliente.EXCLUIDO){
             cliente.setStatus(EnumStatusCliente.ATIVO);
             cliente.setAtivo(true);
+            cliente.setAtivoNaLoja(true);
         }
+        cliente.setUpdatedAt(LocalDateTime.now());
         clienteRepository.save(cliente);
     }
 
     @Transactional
     public void atualizarStatus(Long id, EnumStatusCliente status) {
-        Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+        Cliente cliente = clienteRepository.findById(id).orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
         cliente.setStatus(status);
         cliente.setAtivo(status != EnumStatusCliente.INATIVO && status != EnumStatusCliente.EXCLUIDO);
+        cliente.setAtivoNaLoja(status != EnumStatusCliente.EXCLUIDO);
+        cliente.setUpdatedAt(LocalDateTime.now());
         clienteRepository.save(cliente);
     }
 
-    public void excluir(Long id) {
-        atualizarStatus(id, EnumStatusCliente.EXCLUIDO);
-    }
-
+    public void excluir(Long id) { atualizarStatus(id, EnumStatusCliente.EXCLUIDO); }
     public void registrarLogin(Long id) { registrarAcesso(id); }
 
     @Transactional
     public void registrarCompra(Long id) {
-        Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+        Cliente cliente = clienteRepository.findById(id).orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
         cliente.setUltimaCompra(LocalDateTime.now());
         cliente.setUltimoLogin(LocalDateTime.now());
         cliente.setUltimoAcesso(LocalDateTime.now());
         cliente.setStatus(EnumStatusCliente.ATIVO);
         cliente.setAtivo(true);
+        cliente.setAtivoNaLoja(true);
+        cliente.setUpdatedAt(LocalDateTime.now());
         clienteRepository.save(cliente);
+    }
+
+    public void sincronizarClientesPendentes() {
+        List<Cliente> pendentes = clienteRepository.findBySincronizadoFalse();
+        log.info("Sincronizando {} clientes offline", pendentes.size());
+        for (Cliente c : pendentes) {
+            c.setSincronizado(true);
+            c.setUpdatedAt(LocalDateTime.now());
+            clienteRepository.save(c);
+        }
     }
 
     private ClienteResponseDTO toResponse(Cliente cliente) {
         return new ClienteResponseDTO(
-                cliente.getId(),
-                cliente.getNome(),
-                cliente.getCpf(),
-                cliente.getEmail(),
-                cliente.getRole(),
-                cliente.getStatus(),
-                cliente.getUltimoAcesso(),
-                cliente.getUltimoLogin(),
-                cliente.getUltimaCompra()
+                cliente.getId(), cliente.getNome(), cliente.getCpf(), cliente.getEmail(),
+                cliente.getRole(), cliente.getStatus(), cliente.getUltimoAcesso(),
+                cliente.getUltimoLogin(), cliente.getUltimaCompra()
         );
     }
 }

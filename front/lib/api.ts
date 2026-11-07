@@ -1,6 +1,5 @@
 import { supabase } from './supabaseClient'
 
-// ===== FIX DO ERRO DA SUA PRINT =====
 export async function apiRequest<T>(url: string, options: any = {}): Promise<T> {
   const res = await fetch(url, {
     ...options,
@@ -17,7 +16,6 @@ export async function apiRequest<T>(url: string, options: any = {}): Promise<T> 
   }
   return {} as T;
 }
-// ===== FIM DO FIX =====
 
 export type Produto = {
   id: string
@@ -30,12 +28,17 @@ export type Produto = {
 }
 
 export function padronizaNome(nome: string) {
+  if(!nome) return "";
   return nome
     .replace(/^T_/i, "")
     .replace(/^Pal_/i, "")
+    .replace(/^T /i, "")
+    .replace(/Itemicon /gi, "")
     .replace(/_icon/gi, "")
+    .replace(/_Icon/gi, "")
     .replace(/_normal/gi, "")
     .replace(/_small/gi, "")
+    .replace(/_ Ammo /gi, " ")
     .replace(/_/g, " ")
     .replace(/\s+/g, " ")
     .trim()
@@ -111,7 +114,7 @@ export async function getCarrinho() {
 
 export async function addCarrinho(produto_id: string | number) {
   const id = String(produto_id).trim()
-  if (!id || id === "NaN") throw new Error(`ID inválido: ${produto_id}`)
+  if (!id || id === "NaN") throw new Error(`ID invalido: ${produto_id}`)
   const { data: prod, error: errProd } = await supabase.from('produtos').select('estoque').eq('id', id).single()
   if (errProd) throw errProd
   const estoqueReal = Number(prod?.estoque ?? 0)
@@ -132,10 +135,10 @@ export async function addCarrinho(produto_id: string | number) {
 export async function updateQuantidadeCarrinho(id: string, quantidade: number) {
   if (quantidade <= 0) return removerCarrinho(id)
   const { data: item } = await supabase.from('carrinho').select('*, produtos(*)').eq('id', id).single()
-  if (!item) throw new Error("Item não encontrado")
+  if (!item) throw new Error("Item nao encontrado")
   const diferenca = quantidade - item.quantidade
   const estoqueAtual = Number(item.produtos?.estoque ?? 0)
-  if (diferenca > 0 && estoqueAtual < diferenca) throw new Error(`Só tem ${estoqueAtual} no estoque!`)
+  if (diferenca > 0 && estoqueAtual < diferenca) throw new Error(`So tem ${estoqueAtual} no estoque!`)
   const { data, error } = await supabase.from('carrinho').update({ quantidade }).eq('id', id).select()
   if (error) throw error
   await supabase.from('produtos').update({ estoque: estoqueAtual - diferenca }).eq('id', item.produto_id)
@@ -164,7 +167,6 @@ export async function criarPedido(total: number, itens: any[]) {
     preco: Number(i.produtos?.preco || 0),
     quantidade: Number(i.quantidade)
   }))
-
   try {
     const res = await fetch('http://localhost:8081/pedidos', {
       method: 'POST',
@@ -177,15 +179,7 @@ export async function criarPedido(total: number, itens: any[]) {
     return { id: pedidoJava.id || pedidoJava.pedidoId, ...pedidoJava, total }
   } catch (e) {
     console.warn("Java offline, salvando no Supabase:", e)
-    const { data, error } = await supabase
-      .from('pedidos')
-      .insert([{ 
-        total: total, 
-        status: 'pendente',
-        itens: itensFormatados
-      }])
-      .select()
-      .single()
+    const { data, error } = await supabase.from('pedidos').insert([{ total: total, status: 'pendente', itens: itensFormatados }]).select().single()
     if (error) throw error
     await limparCarrinho()
     return data

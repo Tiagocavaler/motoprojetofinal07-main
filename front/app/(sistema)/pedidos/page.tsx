@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
@@ -37,11 +37,11 @@ export default function PedidosPage() {
   useEffect(() => {
     carregar();
 
-    // TEMPO REAL: escuta mudança na tabela pedidos
+    // TEMPO REAL: escuta mudanÃ§a na tabela pedidos
     const channel = supabase
      .channel("pedidos-realtime")
      .on("postgres_changes", { event: "*", schema: "public", table: "pedidos" }, (payload) => {
-        console.log("Atualização em tempo real:", payload);
+        console.log("AtualizaÃ§Ã£o em tempo real:", payload);
         if (payload.eventType === "UPDATE") {
           setPedidos((prev) => prev.map((p) => p.id === payload.new.id? {...p,...payload.new, total: Number(payload.new.total) } as Pedido : p));
         }
@@ -63,7 +63,7 @@ export default function PedidosPage() {
       <div className="flex justify-between mb-6 items-center">
         <h1 className="text-2xl font-black text-[#E2C9A1]">Meus Pedidos - {pedidos.length}</h1>
         <div className="flex gap-2">
-          <Link href="/catalogo" className="bg-white/10 px-4 py-2 rounded-lg text-sm">Catálogo</Link>
+          <Link href="/catalogo" className="bg-white/10 px-4 py-2 rounded-lg text-sm">CatÃ¡logo</Link>
           <Link href="/pedido" className="bg-[#E2C9A1] text-black px-4 py-2 rounded-lg text-sm font-bold">Carrinho</Link>
         </div>
       </div>
@@ -80,7 +80,7 @@ export default function PedidosPage() {
                     <p className="font-bold text-[#E2C9A1] text-xl">R$ {Number(p.total || 0).toFixed(2)}</p>
                     <p className="text-sm mt-1">Status: <span className={`font-bold uppercase ${statusColor(p.status)}`}>{p.status}</span> <span className="ml-2 text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full animate-pulse">TEMPO REAL</span></p>
                   </div>
-                  <span className="text-zinc-500">{aberto === p.id? "▲" : "▼"}</span>
+                  <span className="text-zinc-500">{aberto === p.id? "â–²" : "â–¼"}</span>
                 </div>
 
                 {/* Linha do tempo */}
@@ -116,7 +116,7 @@ export default function PedidosPage() {
                     <Link href={`/pagamento?id=${p.id}`} className="mt-4 block w-full text-center bg-yellow-500 text-black py-3 rounded-xl font-black">PAGAR AGORA - VER QR CODE</Link>
                   )}
                   {p.status?.toLowerCase() === "pago" && (
-                    <div className="mt-4 text-center text-green-400 text-sm font-bold">✓ Pagamento confirmado! Preparando seu pedido...</div>
+                    <div className="mt-4 text-center text-green-400 text-sm font-bold">âœ“ Pagamento confirmado! Preparando seu pedido...</div>
                   )}
                 </div>
               )}
@@ -127,3 +127,4 @@ export default function PedidosPage() {
     </div>
   );
 }
+

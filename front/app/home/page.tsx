@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -15,10 +15,10 @@ const LISTA_ADMINS = ["rafaelsantos5161@gmail.com", "admin@palworld.com"];
 const WHATSAPP_LINK = "https://chat.whatsapp.com/CCo7ZeCGMKiDsbRjf07moW";
 
 const LOJAS = [
-  { nome: "Steam", icone: "🎮", link: "https://store.steampowered.com/app/1623730/Palworld/", cor: "bg-[#1B2838]", desc: "PC - Melhor preço" },
-  { nome: "Xbox Series X|S", icone: "🟩", link: "https://www.xbox.com/pt-BR/games/palworld", cor: "bg-[#107C10]", desc: "Xbox + Game Pass" },
-  { nome: "PlayStation 5", icone: "🎮", link: "https://store.playstation.com/pt-br/product/EP3937-PPSA16438_00-PALWORLDPS50000", cor: "bg-[#003791]", desc: "PS5 - Versão completa" },
-  { nome: "Microsoft Store", icone: "💻", link: "https://www.xbox.com/pt-BR/games/store/palworld/3D5C6D8C-DA9C-4D6D-BD6D-5E6C7E5C6D8C", cor: "bg-[#0078D4]", desc: "Windows PC" },
+  { nome: "Steam", icone: "ðŸŽ®", link: "https://store.steampowered.com/app/1623730/Palworld/", cor: "bg-[#1B2838]", desc: "PC - Melhor preÃ§o" },
+  { nome: "Xbox Series X|S", icone: "ðŸŸ©", link: "https://www.xbox.com/pt-BR/games/palworld", cor: "bg-[#107C10]", desc: "Xbox + Game Pass" },
+  { nome: "PlayStation 5", icone: "ðŸŽ®", link: "https://store.playstation.com/pt-br/product/EP3937-PPSA16438_00-PALWORLDPS50000", cor: "bg-[#003791]", desc: "PS5 - VersÃ£o completa" },
+  { nome: "Microsoft Store", icone: "ðŸ’»", link: "https://www.xbox.com/pt-BR/games/store/palworld/3D5C6D8C-DA9C-4D6D-BD6D-5E6C7E5C6D8C", cor: "bg-[#0078D4]", desc: "Windows PC" },
 ];
 
 const WhatsAppIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
@@ -48,15 +48,15 @@ export default function HomePage() {
 
   useEffect(() => {
     // 3. MANTIDO: funcionalidades de novidades/patch
-    // 4. NOVO: add catch pra não quebrar a home se a API falhar
+    // 4. NOVO: add catch pra nÃ£o quebrar a home se a API falhar
     if(patchAberto &&!patch) fetch("/api/patch-notes").then(r=>r.json()).then(setPatch).catch(()=>{});
     if(novidadesAberto && novidades.length===0) fetch("/api/novidades").then(r=>r.json()).then(setNovidades).catch(()=>{});
   }, [patchAberto, novidadesAberto]);
 
   useEffect(() => {
-    // 5. ATUALIZADO: Agora checa sessão do Supabase + localStorage - mais seguro pra opção 2
+    // 5. ATUALIZADO: Agora checa sessÃ£o do Supabase + localStorage - mais seguro pra opÃ§Ã£o 2
     const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession(); // 6. NOVO: garante que o Auth do Supabase tá logado
+      const { data: { session } } = await supabase.auth.getSession(); // 6. NOVO: garante que o Auth do Supabase tÃ¡ logado
       const clienteSalvo = localStorage.getItem("cliente");
       if (clienteSalvo) {
         try {
@@ -76,7 +76,7 @@ export default function HomePage() {
     };
     init();
 
-    // 7. MANTIDO: funcionalidade de promoções - mock local, continua funcionando
+    // 7. MANTIDO: funcionalidade de promoÃ§Ãµes - mock local, continua funcionando
     const verificarPromocoes = async () => {
       const promosMock: Promo[] = [
         { plataforma: "Steam", desconto: "-25%", precoAntigo: "R$ 135,00", precoNovo: "R$ 101,25", link: LOJAS[0].link, ativo: true },
@@ -88,7 +88,7 @@ export default function HomePage() {
         const promoAtualId = JSON.stringify(ativas);
         if(ultimaPromoVista!== promoAtualId) {
           setNotificacaoAtiva(true);
-          setNotificacaoMsg(`🔥 PROMOÇÃO: ${ativas[0].plataforma} ${ativas[0].desconto} OFF!`);
+          setNotificacaoMsg(`ðŸ”¥ PROMOÃ‡ÃƒO: ${ativas[0].plataforma} ${ativas[0].desconto} OFF!`);
           localStorage.setItem("ultima_promo_vista", promoAtualId);
         }
       }
@@ -96,9 +96,9 @@ export default function HomePage() {
     verificarPromocoes();
   }, []);
 
-  // 8. ATUALIZADO: Logout agora desloga do Supabase Auth também
+  // 8. ATUALIZADO: Logout agora desloga do Supabase Auth tambÃ©m
   const handleLogout = async () => {
-    await supabase.auth.signOut(); // 9. NOVO: encerra sessão no Supabase
+    await supabase.auth.signOut(); // 9. NOVO: encerra sessÃ£o no Supabase
     localStorage.removeItem("cliente");
     localStorage.removeItem("cliente_id");
     localStorage.removeItem("token");
@@ -118,7 +118,7 @@ export default function HomePage() {
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-[#E2C9A1] text-black px-6 py-3 rounded-full font-black text-sm shadow-2xl flex items-center gap-3 animate-bounce">
           <span>{notificacaoMsg}</span>
           <button onClick={() => { setOndeComprarAberto(true); setNotificacaoAtiva(false); }} className="bg-black text-white px-3 py-1 rounded-full text-xs">VER</button>
-          <button onClick={() => setNotificacaoAtiva(false)} className="ml-2">✕</button>
+          <button onClick={() => setNotificacaoAtiva(false)} className="ml-2">âœ•</button>
         </div>
       )}
 
@@ -126,49 +126,49 @@ export default function HomePage() {
 
       <div className={`absolute top-0 left-0 h-full w-[320px] bg-[#0B1325] border-r border-[#1F2E4F] z-30 shadow-2xl transition-transform duration-300 ${menuLateralAberto? "translate-x-0" : "-translate-x-full"}`}>
         <div className="p-6 flex flex-col h-full overflow-y-auto">
-          <div className="flex items-center justify-between"><h2 className="font-black text-lg text-[#E2C9A1]">MENU</h2><button onClick={() => setMenuLateralAberto(false)} className="bg-white/10 w-8 h-8 rounded-full">✕</button></div>
-          {user? (<Link href="/perfil" onClick={() => setMenuLateralAberto(false)} className="mt-6 flex items-center gap-3 bg-[#162342] p-3 rounded-xl border border-[#E2C9A1]/20"><img src={avatar || "https://i.pravatar.cc/100"} className="w-10 h-10 rounded-full bg-white border-2 border-[#E2C9A1]" /><div><p className="font-bold text-sm">{user.nome || user.email?.split("@")[0]}</p><p className="text-[11px] text-[#E2C9A1]">Ver perfil →</p></div></Link>) : <Link href="/" className="mt-6 block text-center bg-[#E2C9A1] text-black py-3 rounded-xl font-black text-sm">Login</Link>}
+          <div className="flex items-center justify-between"><h2 className="font-black text-lg text-[#E2C9A1]">MENU</h2><button onClick={() => setMenuLateralAberto(false)} className="bg-white/10 w-8 h-8 rounded-full">âœ•</button></div>
+          {user? (<Link href="/perfil" onClick={() => setMenuLateralAberto(false)} className="mt-6 flex items-center gap-3 bg-[#162342] p-3 rounded-xl border border-[#E2C9A1]/20"><img src={avatar || "https://i.pravatar.cc/100"} className="w-10 h-10 rounded-full bg-white border-2 border-[#E2C9A1]" /><div><p className="font-bold text-sm">{user.nome || user.email?.split("@")[0]}</p><p className="text-[11px] text-[#E2C9A1]">Ver perfil â†’</p></div></Link>) : <Link href="/" className="mt-6 block text-center bg-[#E2C9A1] text-black py-3 rounded-xl font-black text-sm">Login</Link>}
           <div className="mt-6 flex flex-col gap-2">
-            {isAdmin && <Link href="/admin" className="bg-[#E2C9A1] text-[#0B1325] py-3 px-4 rounded-xl font-black text-sm animate-pulse text-center border-2 border-white">👑 ADMIN - Cadastrar Produtos</Link>}
-            <Link href="/perfil" className="bg-[#1E2F5A] border border-[#E2C9A1]/30 py-3 px-4 rounded-xl font-bold text-sm">👤 Meu Perfil</Link>
-            <Link href="/catalogo" className="bg-[#E2C9A1] text-[#0B1325] py-3 px-4 rounded-xl font-bold text-sm">🛒 Catálogo</Link>
-            <button onClick={() => setSubOndeComprarLateral(!subOndeComprarLateral)} className="bg-[#E2C9A1]/20 border border-[#E2C9A1]/40 py-3 px-4 rounded-xl font-bold text-sm flex justify-between text-[#E2C9A1]">🛒 Onde Comprar <span>{subOndeComprarLateral?"▲":"▼"}</span></button>
-            <button onClick={() => setSubRedesLateral(!subRedesLateral)} className="bg-[#162342] py-3 px-4 rounded-xl font-bold text-sm flex justify-between">📡 Nossas Redes <span>{subRedesLateral?"▲":"▼"}</span></button>
+            {isAdmin && <Link href="/admin" className="bg-[#E2C9A1] text-[#0B1325] py-3 px-4 rounded-xl font-black text-sm animate-pulse text-center border-2 border-white">ðŸ‘‘ ADMIN - Cadastrar Produtos</Link>}
+            <Link href="/perfil" className="bg-[#1E2F5A] border border-[#E2C9A1]/30 py-3 px-4 rounded-xl font-bold text-sm">ðŸ‘¤ Meu Perfil</Link>
+            <Link href="/catalogo" className="bg-[#E2C9A1] text-[#0B1325] py-3 px-4 rounded-xl font-bold text-sm">ðŸ›’ CatÃ¡logo</Link>
+            <button onClick={() => setSubOndeComprarLateral(!subOndeComprarLateral)} className="bg-[#E2C9A1]/20 border border-[#E2C9A1]/40 py-3 px-4 rounded-xl font-bold text-sm flex justify-between text-[#E2C9A1]">ðŸ›’ Onde Comprar <span>{subOndeComprarLateral?"â–²":"â–¼"}</span></button>
+            <button onClick={() => setSubRedesLateral(!subRedesLateral)} className="bg-[#162342] py-3 px-4 rounded-xl font-bold text-sm flex justify-between">ðŸ“¡ Nossas Redes <span>{subRedesLateral?"â–²":"â–¼"}</span></button>
             {subRedesLateral && <div className="ml-4 bg-black/20 rounded-xl"><a href={WHATSAPP_LINK} target="_blank" className="flex items-center gap-2 py-2 px-4 text-sm text-green-300"><WhatsAppIcon className="w-4 h-4" /> WhatsApp</a></div>}
-            <Link href="/novidades" className="bg-[#162342] py-3 px-4 rounded-xl font-bold text-sm">📰 Novidades</Link>
-            <Link href="/patch-notes" className="bg-[#162342] py-3 px-4 rounded-xl font-bold text-sm">📝 Patch Notes</Link>
+            <Link href="/novidades" className="bg-[#162342] py-3 px-4 rounded-xl font-bold text-sm">ðŸ“° Novidades</Link>
+            <Link href="/patch-notes" className="bg-[#162342] py-3 px-4 rounded-xl font-bold text-sm">ðŸ“ Patch Notes</Link>
           </div>
         </div>
       </div>
 
       <div className="relative z-10 w-full min-h-screen flex flex-col p-4 md:p-6">
         <div className="w-full max-w-[1400px] mx-auto flex justify-between gap-3 flex-wrap items-start">
-          <button onClick={() => setMenuLateralAberto(true)} className="bg-[#162342] border border-[rgba(226,201,161,0.3)] px-6 py-2 rounded-full font-black text-sm">☰ Menu</button>
+          <button onClick={() => setMenuLateralAberto(true)} className="bg-[#162342] border border-[rgba(226,201,161,0.3)] px-6 py-2 rounded-full font-black text-sm">â˜° Menu</button>
           <div className="flex gap-3 flex-wrap items-start justify-end">
             <div className="hidden md:flex gap-3 flex-wrap justify-end items-center">
               <div className="relative">
-                <button onClick={() => { fecharTudo(); setOndeComprarAberto(!ondeComprarAberto); }} className="bg-[#E2C9A1] text-[#0B1325] border border-[#E2C9A1] px-6 py-2 rounded-full font-black text-sm">🛒 Onde Comprar {ondeComprarAberto?"▲":"▼"}</button>
+                <button onClick={() => { fecharTudo(); setOndeComprarAberto(!ondeComprarAberto); }} className="bg-[#E2C9A1] text-[#0B1325] border border-[#E2C9A1] px-6 py-2 rounded-full font-black text-sm">ðŸ›’ Onde Comprar {ondeComprarAberto?"â–²":"â–¼"}</button>
                 {ondeComprarAberto && <div className="absolute top-[50px] right-0 w-[380px] bg-[#162342] border border-[#E2C9A1]/30 rounded-2xl overflow-hidden shadow-2xl z-20"><div className="p-3 grid gap-2">{LOJAS.map(loja => (<a key={loja.nome} href={loja.link} target="_blank" className={`block ${loja.cor} py-3 px-4 rounded-xl text-sm font-bold text-center`}>{loja.nome}</a>))}</div></div>}
               </div>
-              <div className="relative"><button onClick={() => { fecharTudo(); setRedesAberto(!redesAberto); }} className="bg-[rgba(17,28,53,0.85)] border border-[rgba(226,201,161,0.2)] px-6 py-2 rounded-full font-bold text-sm">Nossas Redes {redesAberto?"▲":"▼"}</button>{redesAberto && <div className="absolute top-[50px] right-0 w-[240px] bg-[#162342] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-20"><a href={WHATSAPP_LINK} target="_blank" className="block py-3 text-center text-sm text-green-300">WhatsApp</a></div>}</div>
-              <div className="relative"><button onClick={() => { fecharTudo(); setNovidadesAberto(!novidadesAberto); }} className="bg-[rgba(17,28,53,0.85)] border border-[rgba(226,201,161,0.2)] px-6 py-2 rounded-full font-bold text-sm">Novidades {novidadesAberto?"▲":"▼"}</button>{novidadesAberto && <div className="absolute top-[50px] right-0 w-[360px] bg-[#162342] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-20"><div className="max-h-[400px] overflow-y-auto">{novidades.map(n=>(<Link key={n.gid} href={`/novidades/${n.gid}`} className="block p-4 border-b border-white/5 hover:bg-white/10"><p className="text-[13px] font-bold">{n.title}</p></Link>))}</div></div>}</div>
-              <div className="relative"><button onClick={() => { fecharTudo(); setPatchAberto(!patchAberto); }} className="bg-[rgba(17,28,53,0.85)] border border-[rgba(226,201,161,0.2)] px-6 py-2 rounded-full font-bold text-sm">Patch Notes {patchAberto?"▲":"▼"}</button>{patchAberto && <div className="absolute top-[50px] right-0 w-[380px] bg-[#162342] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-20"><div className="p-4">{!patch? <p>Carregando...</p>: <><p className="font-black">{patch.title}</p><p className="text-xs mt-3 line-clamp-4">{limpar(patch.contents||"")}</p></>}</div><Link href="/patch-notes" className="block py-3 text-center text-xs font-bold bg-[#E2C9A1] text-[#0B1325]">Ver completo →</Link></div>}</div>
-              <div className="relative"><button onClick={() => { fecharTudo(); setGuiaAberto(!guiaAberto); }} className="bg-[rgba(17,28,53,0.85)] border border-[rgba(226,201,161,0.2)] px-6 py-2 rounded-full font-bold text-sm">Guia {guiaAberto?"▲":"▼"}</button>{guiaAberto && <div className="absolute top-[50px] right-0 w-[240px] bg-[#162342] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-20"><Link href="/guia/breeding" className="block py-3 text-center text-sm">Breeding</Link><Link href="/guia/mapa" className="block py-3 text-center text-sm">Mapa</Link><Link href="/guia/pals" className="block py-3 text-center text-sm">Pals</Link></div>}</div>
+              <div className="relative"><button onClick={() => { fecharTudo(); setRedesAberto(!redesAberto); }} className="bg-[rgba(17,28,53,0.85)] border border-[rgba(226,201,161,0.2)] px-6 py-2 rounded-full font-bold text-sm">Nossas Redes {redesAberto?"â–²":"â–¼"}</button>{redesAberto && <div className="absolute top-[50px] right-0 w-[240px] bg-[#162342] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-20"><a href={WHATSAPP_LINK} target="_blank" className="block py-3 text-center text-sm text-green-300">WhatsApp</a></div>}</div>
+              <div className="relative"><button onClick={() => { fecharTudo(); setNovidadesAberto(!novidadesAberto); }} className="bg-[rgba(17,28,53,0.85)] border border-[rgba(226,201,161,0.2)] px-6 py-2 rounded-full font-bold text-sm">Novidades {novidadesAberto?"â–²":"â–¼"}</button>{novidadesAberto && <div className="absolute top-[50px] right-0 w-[360px] bg-[#162342] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-20"><div className="max-h-[400px] overflow-y-auto">{novidades.map(n=>(<Link key={n.gid} href={`/novidades/${n.gid}`} className="block p-4 border-b border-white/5 hover:bg-white/10"><p className="text-[13px] font-bold">{n.title}</p></Link>))}</div></div>}</div>
+              <div className="relative"><button onClick={() => { fecharTudo(); setPatchAberto(!patchAberto); }} className="bg-[rgba(17,28,53,0.85)] border border-[rgba(226,201,161,0.2)] px-6 py-2 rounded-full font-bold text-sm">Patch Notes {patchAberto?"â–²":"â–¼"}</button>{patchAberto && <div className="absolute top-[50px] right-0 w-[380px] bg-[#162342] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-20"><div className="p-4">{!patch? <p>Carregando...</p>: <><p className="font-black">{patch.title}</p><p className="text-xs mt-3 line-clamp-4">{limpar(patch.contents||"")}</p></>}</div><Link href="/patch-notes" className="block py-3 text-center text-xs font-bold bg-[#E2C9A1] text-[#0B1325]">Ver completo â†’</Link></div>}</div>
+              <div className="relative"><button onClick={() => { fecharTudo(); setGuiaAberto(!guiaAberto); }} className="bg-[rgba(17,28,53,0.85)] border border-[rgba(226,201,161,0.2)] px-6 py-2 rounded-full font-bold text-sm">Guia {guiaAberto?"â–²":"â–¼"}</button>{guiaAberto && <div className="absolute top-[50px] right-0 w-[240px] bg-[#162342] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-20"><Link href="/guia/breeding" className="block py-3 text-center text-sm">Breeding</Link><Link href="/guia/mapa" className="block py-3 text-center text-sm">Mapa</Link><Link href="/guia/pals" className="block py-3 text-center text-sm">Pals</Link></div>}</div>
             </div>
 
             {isAdmin && (
-              <Link href="/admin" className="bg-[#E2C9A1] text-[#0B1325] px-6 py-2 rounded-full font-black text-sm animate-pulse border-2 border-white shadow-[0_0_15px_#E2C9A1]">👑 ADMIN</Link>
+              <Link href="/admin" className="bg-[#E2C9A1] text-[#0B1325] px-6 py-2 rounded-full font-black text-sm animate-pulse border-2 border-white shadow-[0_0_15px_#E2C9A1]">ðŸ‘‘ ADMIN</Link>
             )}
 
-            <Link href="/catalogo" className="bg-[#E2C9A1]/20 border border-[#E2C9A1]/40 text-[#E2C9A1] px-6 py-2 rounded-full font-bold text-sm">Catálogo</Link>
+            <Link href="/catalogo" className="bg-[#E2C9A1]/20 border border-[#E2C9A1]/40 text-[#E2C9A1] px-6 py-2 rounded-full font-bold text-sm">CatÃ¡logo</Link>
             {user? (<><Link href="/perfil" className="bg-[#1E2F5A] border border-[#E2C9A1]/40 text-white px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2"><img src={avatar || "https://i.pravatar.cc/100"} className="w-6 h-6 rounded-full bg-white" />Perfil</Link><button onClick={handleLogout} className="bg-red-500/20 border border-red-500/40 text-red-200 px-6 py-2 rounded-full font-bold text-sm">Sair</button></>) : <Link href="/" className="bg-white/10 px-6 py-2 rounded-full font-bold text-sm">Login</Link>}
           </div>
         </div>
 
         <div className="flex-1 flex flex-col items-center justify-center">
           <h1 className="text-5xl md:text-6xl font-black text-center">Bem vindo a ComunidadeClt!</h1>
-          <p className="mt-4 text-[#D3C9BF]">Guia aberto pra todos. Produtos só para o vendedor.</p>
-          {isAdmin && <p className="mt-2 text-[#E2C9A1] font-bold text-sm">👑 Logado como {user?.email} - NÍVEL ADMIN - Você CADASTRA produtos pro catálogo</p>}
+          <p className="mt-4 text-[#D3C9BF]">Guia aberto pra todos. Produtos sÃ³ para o vendedor.</p>
+          {isAdmin && <p className="mt-2 text-[#E2C9A1] font-bold text-sm">ðŸ‘‘ Logado como {user?.email} - NÃVEL ADMIN - VocÃª CADASTRA produtos pro catÃ¡logo</p>}
         </div>
 
         {/* 11. NOVO: CHATBOX RESTAURADO - estava sumido na sua print, agora volta no canto inferior esquerdo */}
@@ -179,13 +179,13 @@ export default function HomePage() {
               className="bg-[#E2C9A1] text-black w-14 h-14 rounded-full font-black text-xl shadow-2xl flex items-center justify-center animate-bounce"
               title="Abrir chat"
             >
-              💬
+              ðŸ’¬
             </button>
           ) : (
             <div className="w-[310px] bg-[#162342] border border-[#E2C9A1]/30 rounded-2xl shadow-2xl overflow-hidden">
               <div className="bg-[#E2C9A1] text-black p-3 flex justify-between items-center font-black text-sm">
-                <span>💬 ComunidadeClt Chat</span>
-                <button onClick={() => setChatAberto(false)} className="bg-black/20 w-6 h-6 rounded-full">✕</button>
+                <span>ðŸ’¬ ComunidadeClt Chat</span>
+                <button onClick={() => setChatAberto(false)} className="bg-black/20 w-6 h-6 rounded-full">âœ•</button>
               </div>
               <div className="p-4">
                 <p className="text-xs text-[#D3C9BF] mb-3">Precisa de ajuda? Fale com a gente no WhatsApp!</p>
@@ -197,7 +197,7 @@ export default function HomePage() {
                 </button>
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <Link href="/guia/pals" className="bg-white/10 py-2 rounded-lg text-xs text-center hover:bg-white/20">Guia Pals</Link>
-                  <Link href="/catalogo" className="bg-[#E2C9A1]/20 text-[#E2C9A1] py-2 rounded-lg text-xs text-center hover:bg-[#E2C9A1]/30">Ver Catálogo</Link>
+                  <Link href="/catalogo" className="bg-[#E2C9A1]/20 text-[#E2C9A1] py-2 rounded-lg text-xs text-center hover:bg-[#E2C9A1]/30">Ver CatÃ¡logo</Link>
                 </div>
               </div>
             </div>
@@ -207,3 +207,4 @@ export default function HomePage() {
     </div>
   );
 }
+

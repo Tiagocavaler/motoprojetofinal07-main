@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getProdutos, getCarrinho, addCarrinho } from "@/lib/api";
@@ -27,7 +27,7 @@ export default function CatalogoPage() {
     async function carregarDoSupabase() {
       try {
         setLoading(true);
-        // 1. CORRIGIDO: Carrega separado pra não travar tudo se carrinho falhar
+        // 1. CORRIGIDO: Carrega separado pra nÃ£o travar tudo se carrinho falhar
         const produtosDoBanco = await getProdutos();
         setProdutos(produtosDoBanco as any);
 
@@ -40,7 +40,7 @@ export default function CatalogoPage() {
         }
       } catch (erro: any) {
         console.error("Erro REAL:", erro.message, erro);
-        alert("Erro ao carregar catálogo: " + erro.message);
+        alert("Erro ao carregar catÃ¡logo: " + erro.message);
       } finally {
         setLoading(false);
       }
@@ -50,12 +50,12 @@ export default function CatalogoPage() {
 
   const adicionarAoCarrinho = async (produto: Produto) => {
     if (adicionando) return;
-    if ((produto.estoque ?? 0) <= 0) return alert(`Indisponível! ${produto.nome} sem estoque`);
+    if ((produto.estoque ?? 0) <= 0) return alert(`IndisponÃ­vel! ${produto.nome} sem estoque`);
 
     try {
       setAdicionando(produto.id);
 
-      // 2. CORRIGIDO: addCarrinho já baixa o estoque no banco, não precisa fazer update aqui
+      // 2. CORRIGIDO: addCarrinho jÃ¡ baixa o estoque no banco, nÃ£o precisa fazer update aqui
       await addCarrinho(produto.id);
 
       // 3. Atualiza na tela na hora
@@ -98,7 +98,7 @@ export default function CatalogoPage() {
   return (
     <div className="min-h-screen bg-[#0B1325] p-4 md:p-8 text-white">
       <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
-        <h1 className="text-3xl font-bold text-[#E2C9A1]">Catálogo - {filtrados.length} / {produtos.length}</h1>
+        <h1 className="text-3xl font-bold text-[#E2C9A1]">CatÃ¡logo - {filtrados.length} / {produtos.length}</h1>
         <div className="flex gap-2">
           <input value={busca} onChange={e=>setBusca(e.target.value)} placeholder="Buscar..." className="bg-[#162342] p-3 rounded-lg border border-white/10 outline-none w-full md:w-64" />
           <Link href="/pedido" className="bg-[#E2C9A1] text-[#0B1325] px-6 py-3 rounded-lg font-bold">Carrinho ({totalItens})</Link>
@@ -112,7 +112,7 @@ export default function CatalogoPage() {
           { id: 'arma', label: 'ARMAS' },
           { id: 'armadura', label: 'ARMADURAS' },
           { id: 'escudo', label: 'ESCUDOS' },
-          { id: 'municao', label: 'MUNIÇÃO' },
+          { id: 'municao', label: 'MUNIÃ‡ÃƒO' },
           { id: 'esfera', label: 'SPHERES' },
         ].map(cat => (
           <button key={cat.id} onClick={()=>{setFiltroCat(cat.id); setVisiveis(60);}}
@@ -128,13 +128,13 @@ export default function CatalogoPage() {
           const imagemSrc = (p as any).imagem_url || (p as any).imagem || "/placeholder.png";
           return (
             <div key={`${p.id}-${index}`} className="relative bg-[#162342] p-4 rounded-xl border border-white/10 hover:border-[#E2C9A1]/50 transition">
-              {indisponivel && <div className="absolute inset-0 bg-black/80 z-10 flex items-center justify-center rounded-xl"><span className="bg-red-600 px-4 py-1 rounded-full font-bold text-sm">INDISPONÍVEL</span></div>}
+              {indisponivel && <div className="absolute inset-0 bg-black/80 z-10 flex items-center justify-center rounded-xl"><span className="bg-red-600 px-4 py-1 rounded-full font-bold text-sm">INDISPONÃVEL</span></div>}
               <img src={imagemSrc} alt={p.nome} className={`w-full h-32 object-contain ${indisponivel?'grayscale':''}`} loading="lazy" />
               <h3 className="text-[#E2C9A1] mt-2 truncate text-sm font-bold" title={p.nome}>{p.nome.replace(/_/g," ")}</h3>
               <p className="font-bold">R$ {Number(p.preco).toFixed(2)}</p>
               <p className={`text-[10px] ${indisponivel ? 'text-red-400 font-bold' : 'text-zinc-500'}`}>Estoque: {p.estoque}</p>
               <button disabled={indisponivel || adicionando===p.id} onClick={()=>adicionarAoCarrinho(p)} className={`w-full mt-3 py-2 rounded-lg font-bold text-sm ${indisponivel? 'bg-gray-600 cursor-not-allowed' : 'bg-[#E2C9A1] text-[#0B1325] hover:bg-white'}`}>
-                {adicionando===p.id?'...':indisponivel?'Indisponível':'Adicionar'}
+                {adicionando===p.id?'...':indisponivel?'IndisponÃ­vel':'Adicionar'}
               </button>
             </div>
           )
