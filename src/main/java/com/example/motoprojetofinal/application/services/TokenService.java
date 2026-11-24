@@ -12,6 +12,13 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+/**
+ * CAMADA: Application / Service - SEGURANÇA
+ * O QUE FAZ: Gera e valida o token JWT. Gera na hora do login
+ * e valida no JwtFilter a cada requisição.
+ * POR QUE EXISTE: Centraliza a chave secreta, tempo de expiração
+ * e a lógica do JWT num lugar só. Nenhum outro Service mexe com JWT.
+ */
 
 @Service
 public class TokenService {

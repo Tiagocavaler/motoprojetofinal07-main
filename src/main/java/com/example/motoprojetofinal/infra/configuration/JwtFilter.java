@@ -13,6 +13,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collections;
 
+/**
+ * CAMADA: Infra / Segurança
+ * O QUE FAZ: Intercepta toda requisição, lê o token JWT do header
+ * Authorization e valida se o usuário está logado.
+ * POR QUE EXISTE: É o que protege as rotas - sem token válido,
+ * a requisição é barrada antes de chegar no Controller.
+ */
+
 @Component
 public class JwtFilter extends OncePerRequestFilter {
     @Autowired

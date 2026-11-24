@@ -11,6 +11,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+/**
+ * CAMADA: Application / Service - REGRA DE NEGÓCIO
+ * O QUE FAZ: Busca produtos na API externa, converte para o nosso
+ * formato e salva no banco sem duplicar.
+ * POR QUE EXISTE: É quem faz a sincronização. Usa o ProdutoApiExternaClient
+ * da Infra para buscar e o ProdutoRepository para salvar.
+ */
 
 @Service
 @RequiredArgsConstructor

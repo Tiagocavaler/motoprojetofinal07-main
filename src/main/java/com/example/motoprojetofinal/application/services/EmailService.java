@@ -6,6 +6,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+/**
+ * CAMADA: Application / Service
+ * O QUE FAZ: Envia emails. Ex: email de recuperação de senha com o token.
+ * POR QUE EXISTE: Isola o envio de email. Se trocar de provedor
+ * (Gmail, SendGrid), só mexe aqui, não no resto do projeto.
+ */
 
 @Service
 @Slf4j

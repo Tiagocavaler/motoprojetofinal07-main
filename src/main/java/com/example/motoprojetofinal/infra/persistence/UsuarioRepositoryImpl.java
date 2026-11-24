@@ -5,6 +5,13 @@ import com.example.motoprojetofinal.domain.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
+/**
+ * CAMADA: Infra / Persistência - Implementação
+ * O QUE FAZ: Implementa a interface do domínio (UsuarioRepository)
+ * usando o UsuarioJpaRepository por baixo.
+ * POR QUE EXISTE: É o adaptador entre o Domínio e o JPA - o domínio
+ * não sabe que usamos Spring Data, ele só conhece a interface.
+ */
 
 @Repository
 @RequiredArgsConstructor

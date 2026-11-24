@@ -16,7 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+/**
+ * CAMADA: Application / Service - REGRA DE NEGÓCIO
+ * O QUE FAZ: Tem toda a regra de Cliente. Cadastrar, validar CPF,
+ * não deixar email duplicado, atualizar status (ATIVO / ESPORADICO / INATIVO).
+ * POR QUE EXISTE: O Controller só recebe o DTO, quem valida e salva
+ * é aqui, usando o ClienteRepository do Domain.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -44,7 +50,6 @@ public class ClienteService {
         cliente.setCpf(cpfFinal);
         cliente.setStatus(EnumStatusCliente.ATIVO);
         cliente.setAtivo(true);
-        cliente.setAtivoNaLoja(true);
         cliente.setUltimoLogin(LocalDateTime.now());
         cliente.setUltimoAcesso(LocalDateTime.now());
         cliente.setSincronizado(false);
@@ -88,7 +93,6 @@ public class ClienteService {
             cliente.setUltimoAcesso(LocalDateTime.now());
             cliente.setStatus(EnumStatusCliente.ATIVO);
             cliente.setAtivo(true);
-            cliente.setAtivoNaLoja(true);
             cliente.setUpdatedAt(LocalDateTime.now());
             return toResponse(clienteRepository.save(cliente));
         }
@@ -133,7 +137,6 @@ public class ClienteService {
         if(cliente.getStatus() != EnumStatusCliente.EXCLUIDO){
             cliente.setStatus(EnumStatusCliente.ATIVO);
             cliente.setAtivo(true);
-            cliente.setAtivoNaLoja(true);
         }
         cliente.setUpdatedAt(LocalDateTime.now());
         clienteRepository.save(cliente);
@@ -144,7 +147,6 @@ public class ClienteService {
         Cliente cliente = clienteRepository.findById(id).orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
         cliente.setStatus(status);
         cliente.setAtivo(status != EnumStatusCliente.INATIVO && status != EnumStatusCliente.EXCLUIDO);
-        cliente.setAtivoNaLoja(status != EnumStatusCliente.EXCLUIDO);
         cliente.setUpdatedAt(LocalDateTime.now());
         clienteRepository.save(cliente);
     }
@@ -160,7 +162,6 @@ public class ClienteService {
         cliente.setUltimoAcesso(LocalDateTime.now());
         cliente.setStatus(EnumStatusCliente.ATIVO);
         cliente.setAtivo(true);
-        cliente.setAtivoNaLoja(true);
         cliente.setUpdatedAt(LocalDateTime.now());
         clienteRepository.save(cliente);
     }

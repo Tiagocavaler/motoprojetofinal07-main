@@ -7,6 +7,12 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+/**
+ * CAMADA: Infra / Segurança
+ * O QUE FAZ: Define as regras de segurança: quais rotas são públicas
+ * (login, cadastro), quais precisam de token e qual é a senha criptografada (BCrypt).
+ * POR QUE EXISTE: É o coração do Spring Security do projeto.
+ */
 
 @Configuration
 public class SwaggerConfiguration {

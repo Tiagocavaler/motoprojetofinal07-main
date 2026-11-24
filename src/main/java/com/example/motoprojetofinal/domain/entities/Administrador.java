@@ -1,11 +1,16 @@
 package com.example.motoprojetofinal.domain.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import java.util.UUID;
+/**
+ * CAMADA: Domain / Entidade
+ * O QUE FAZ: Representa o Administrador do sistema. Herda tudo de Usuario
+ * (id, nome, email, senha, role) e adiciona a matrícula (ex: ADM-XXXXXX).
+ * HERANÇA: @Inheritance JOINED - fica numa tabela separada 'administrador'
+ * ligada pelo usuario_id com a tabela 'usuario'.
+ * REGRA: Só quem tem Role.ADMINISTRADOR pode gerenciar produtos e pedidos.
+ */
 
 @Entity
 @Data
@@ -18,6 +23,10 @@ public class Administrador extends Usuario {
 
     @Column(unique = true)
     private String matricula;
+
+    // Offline-first - estava faltando aqui, por isso o getSincronizado() não existia
+    private Boolean sincronizado = false;
+    private String origem = "LOCAL";
 
     @PrePersist
     public void gerarMatricula() {

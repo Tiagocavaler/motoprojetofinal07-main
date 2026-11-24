@@ -16,6 +16,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+/**
+ * CAMADA: Application / Service - REGRA DE NEGÓCIO
+ * O QUE FAZ: Tem toda a regra de Pedido. Calcula valor total,
+ * verifica estoque, dá baixa no estoque, salva Pedido + ItemPedido.
+ * POR QUE EXISTE: É a regra mais importante da venda. Se não tiver
+ * estoque, é aqui que ele barra o pedido.
+ */
 
 @Service
 @RequiredArgsConstructor

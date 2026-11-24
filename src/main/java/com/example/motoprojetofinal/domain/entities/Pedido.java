@@ -8,6 +8,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * CAMADA: Domain / Entidade
+ * O QUE FAZ: Representa o Pedido feito por um Cliente.
+ * Guarda data, valor total, status e a lista de ItemPedido.
+ * POR QUE EXISTE: É o coração da venda - agrupa o que o cliente comprou,
+ * por quanto e em qual estado está o pedido.
+ * RELAÇÃO: ManyToOne com Cliente e OneToMany com ItemPedido.
+ */
+
 @Entity
 @Data
 @NoArgsConstructor

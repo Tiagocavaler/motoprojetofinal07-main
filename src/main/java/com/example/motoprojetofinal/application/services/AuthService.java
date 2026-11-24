@@ -11,6 +11,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+/**
+ * CAMADA: Application / Service - REGRA DE NEGÓCIO
+ * O QUE FAZ: Tem toda a regra de Admin. Criar admin, listar, buscar,
+ * gerar matrícula ADM-XXXXXX.
+ * POR QUE EXISTE: O Controller só recebe HTTP, quem decide a regra
+ * é aqui. Ex: não deixa criar 2 admins com o mesmo email.
+ */
 
 @Service
 @RequiredArgsConstructor

@@ -4,6 +4,12 @@ import com.example.motoprojetofinal.domain.entities.Produto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+/**
+ * CAMADA: Domain / Repository - INTERFACE
+ * O QUE FAZ: Contrato para buscar e salvar Produto.
+ * Ex: listar todos, buscar por nome, salvar produto vindo da API externa.
+ * POR QUE EXISTE: O Domain define o que precisa, a Infra implementa com JPA.
+ */
 
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {

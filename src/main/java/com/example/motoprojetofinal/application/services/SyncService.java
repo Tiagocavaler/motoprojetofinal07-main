@@ -5,6 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+/**
+ * CAMADA: Application / Service
+ * O QUE FAZ: Orquestra a sincronização. Decide quando sincronizar,
+ * chama o ProdutoSyncService e registra o que foi sincronizado.
+ * POR QUE EXISTE: Separa "quando sincronizar" de "como sincronizar".
+ * O "como" está no ProdutoSyncService, o "quando" está aqui.
+ */
 
 @Slf4j
 @Service

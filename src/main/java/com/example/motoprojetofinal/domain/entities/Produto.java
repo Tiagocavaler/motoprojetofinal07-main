@@ -3,8 +3,18 @@ package com.example.motoprojetofinal.domain.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 import com.example.motoprojetofinal.domain.ValueObjects.QuantidadeEstoque;
 import com.example.motoprojetofinal.domain.ValueObjects.Preco;
+
+/**
+ * CAMADA: Domain / Entidade
+ * O QUE FAZ: Representa o Produto do catálogo.
+ * Guarda nome, preço, estoque, descrição e origem (LOCAL ou API EXTERNA).
+ * POR QUE EXISTE: É o que aparece para vender. Pode vir cadastrado na mão
+ * ou sincronizado da API externa.
+ */
 
 @Entity
 @Getter
@@ -28,14 +38,13 @@ public class Produto {
 
     private Integer estoque = 0;
 
-    private Boolean ativoNaLoja = true;
+    @Column(name = "ativo_na_loja")
+    private Boolean ativoNaLoja = true; // Flag que seu getProdutos() usa: .eq('ativo_na_loja', true)
+
     private Boolean sincronizado = false;
     private String origem = "LOCAL";
     private String imagemUrl;
     private LocalDateTime updatedAt;
-
-    @Column(name = "ativo_na_loja")
-    private Boolean ativoNaLoja = true; // 4. Flag que seu getProdutos() usa: .eq('ativo_na_loja', true)
 
     // 5. VALUE OBJECTS - validação sem quebrar o Supabase
     // O banco continua BigDecimal / Integer, mas quem valida é o VO

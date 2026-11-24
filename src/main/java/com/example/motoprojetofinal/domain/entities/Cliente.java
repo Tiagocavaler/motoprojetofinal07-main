@@ -3,6 +3,17 @@ package com.example.motoprojetofinal.domain.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+
+/**
+ * CAMADA: Domain / Entidade
+ * O QUE FAZ: Representa o Cliente. Herda tudo de Usuario e adiciona
+ * CPF, status (ATIVO / ESPORADICO / INATIVO) e última compra.
+ * HERANÇA: @Inheritance JOINED - fica na tabela 'clientes' ligada
+ * pelo id com a tabela 'usuario'.
+ * REGRA: O status é calculado sozinho em atualizarStatusAutomatico()
+ * baseado em dias sem comprar / sem logar.
+ */
 
 @Entity
 @Getter

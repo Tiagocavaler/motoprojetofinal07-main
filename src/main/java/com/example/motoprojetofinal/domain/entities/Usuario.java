@@ -10,6 +10,16 @@ import java.util.Collection;
 import java.util.List;
 import com.example.motoprojetofinal.domain.ValueObjects.Email;
 
+/**
+ * CAMADA: Domain / Entidade - CLASSE PAI
+ * O QUE FAZ: Representa o usuário base do sistema (nome, email, senha,
+ * role, ativo, origem, último login).
+ * HERANÇA: @Inheritance JOINED - as tabelas 'administrador' e 'clientes'
+ * herdam dessa. O id é Long / bigint em todas as 3.
+ * SEGURANÇA: Implementa UserDetails, por isso o Spring Security usa
+ * ela para fazer login e validar o JWT.
+ */
+
 @Entity
 @Getter
 @Setter
@@ -36,6 +46,14 @@ public class Usuario implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role = Role.CLIENTE;
 
+    // Campos que o ClienteService e o Administrador usam
+    private Boolean ativo = true;
+    private Boolean sincronizado = false;
+    private String origem = "LOCAL";
+    private LocalDateTime updatedAt;
+    private LocalDateTime ultimoLogin;
+    private LocalDateTime ultimoAcesso;
+
     // VALUE OBJECT - EMAIL
     // O banco continua String, mas quem valida é o VO
     public void setEmail(String email) {
@@ -50,5 +68,5 @@ public class Usuario implements UserDetails {
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return ativoNaLoja; }
+    @Override public boolean isEnabled() { return ativo == null || ativo; }
 }

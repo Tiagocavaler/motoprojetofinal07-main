@@ -12,6 +12,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+/**
+ * CAMADA: Presentation / Controller - REST
+ * O QUE FAZ: Recebe as requisições HTTP relacionadas ao Cliente.
+ * Ex: cadastrar cliente, listar clientes, buscar por CPF, atualizar status.
+ * POR QUE EXISTE: É a porta de entrada da API para tudo que é de cliente.
+ * Ele só recebe o JSON e repassa para a camada Application.
+ * NÃO tem regra de negócio aqui, só HTTP.
+ * ROTA BASE: /clientes
+ */
+
 @RestController
 @RequestMapping("/usuarios")
 @RequiredArgsConstructor

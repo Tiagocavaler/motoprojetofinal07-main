@@ -11,6 +11,14 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+/**
+ * CAMADA: Application / Service - REGRA DE NEGÓCIO
+ * O QUE FAZ: Controla o fluxo "esqueci a senha". Gera o token,
+ * salva no PasswordResetToken, manda email e depois valida o token
+ * para trocar a senha.
+ * POR QUE EXISTE: Garante que só quem tem o token válido consegue
+ * trocar a senha, e que o token expira.
+ */
 
 @Service
 @RequiredArgsConstructor

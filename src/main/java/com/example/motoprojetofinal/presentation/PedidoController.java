@@ -7,6 +7,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+/**
+ * CAMADA: Presentation / Controller - REST
+ * O QUE FAZ: Recebe as requisições HTTP relacionadas ao Pedido.
+ * Ex: criar pedido, listar pedidos de um cliente, mudar status do pedido.
+ * POR QUE EXISTE: É a porta de entrada da API para o fluxo de compra.
+ * Ele só recebe o JSON e repassa para a camada Application.
+ * NÃO tem regra de negócio aqui, só HTTP.
+ * ROTA BASE: /pedidos
+ */
 
 @RestController
 @RequestMapping("/pedidos")

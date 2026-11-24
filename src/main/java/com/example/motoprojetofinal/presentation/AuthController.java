@@ -13,6 +13,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Optional;
+/**
+ * CAMADA: Presentation / Controller - REST
+ * O QUE FAZ: Recebe as requisições de autenticação: login e cadastro.
+ * Ex: POST /auth/login recebe email + senha e devolve o token JWT.
+ * POR QUE EXISTE: É a única parte pública da API - não precisa de token
+ * para logar, é aqui que o token é gerado.
+ * ROTA BASE: /auth
+ */
 
 @RestController
 @RequestMapping("/auth")

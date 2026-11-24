@@ -6,6 +6,14 @@ import org.springframework.web.client.RestClient;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * CAMADA: Infra / Externa
+ * O QUE FAZ: Faz a chamada HTTP para a API externa de produtos
+ * e converte a resposta para o formato do nosso sistema.
+ * POR QUE EXISTE: Isola a dependência externa - se a API de fora
+ * mudar, só mexe aqui, não no resto do projeto.
+ */
+
 @Component
 public class ProdutoApiExternaClient {
 
